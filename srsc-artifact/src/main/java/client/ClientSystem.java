@@ -4,7 +4,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-public class Client {
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.glassfish.jersey.client.ClientConfig;
+
+public class ClientSystem {
+
+	// Calls the services
 
 	public static void main(String[] args) throws IOException {
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
@@ -54,6 +64,16 @@ public class Client {
 	private static void operationLogin(String controls) {
 		String username = controls.split(" ")[0];
 		String passowrd = controls.split(" ")[1];
+
+		// por esta parte de forma a corre so uma vez por client
+		ClientConfig config = new ClientConfig();
+		Client client = ClientBuilder.newClient(config);
+
+		WebTarget target = client.target("url_do_server").path("url_do_servico");
+
+		// Login response
+		// Response r = target.request().accept(MediaType.APPLICATION_JSON).post();
+
 	}
 
 	private static void operationMkdir(String controls) {
