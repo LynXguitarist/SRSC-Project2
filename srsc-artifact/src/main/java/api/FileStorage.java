@@ -11,6 +11,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import frontend.FilesToCopy;
+
 @Path(FileStorage.PATH)
 public interface FileStorage {
 
@@ -47,9 +49,9 @@ public interface FileStorage {
 	 * @param path
 	 */
 	@POST
-	@Path("/{username}/{path}")
+	@Path("/{username}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	void mkdir(@PathParam("username") String username, @PathParam("path") String path);
+	void mkdir(@PathParam("username") String username, String path);
 
 	/**
 	 * Puts a file in the path
@@ -59,9 +61,9 @@ public interface FileStorage {
 	 * @param file
 	 */
 	@POST
-	@Path("/{username}/{path}/{file}")
+	@Path("/{username}/{path}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	void put(@PathParam("username") String username, @PathParam("path") String path, @PathParam("file") String file);
+	void put(@PathParam("username") String username, @PathParam("path") String path, String file);
 
 	/**
 	 * Returns the file in the path
@@ -80,16 +82,12 @@ public interface FileStorage {
 	 * copies file in path to file2 in path2
 	 * 
 	 * @param username
-	 * @param path
-	 * @param file
-	 * @param path2
-	 * @param file2
+	 * @param filesToCopy
 	 */
 	@POST
-	@Path("/{username}/{path}/{file}/{path2}/{file2}")
+	@Path("/cp/{username}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	void cp(@PathParam("username") String username, @PathParam("path") String path, @PathParam("file") String file,
-			@PathParam("path2") String path2, @PathParam("file2") String file2);
+	void cp(@PathParam("username") String username, FilesToCopy filesToCopy);
 
 	/**
 	 * Deletes the file from path

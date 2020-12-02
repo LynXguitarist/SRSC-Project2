@@ -3,6 +3,7 @@ package fileStorage;
 import java.util.List;
 
 import api.FileStorage;
+import frontend.FilesToCopy;
 
 public class FileStorageService implements FileStorage {
 
@@ -37,7 +38,7 @@ public class FileStorageService implements FileStorage {
 	}
 
 	@Override
-	public void cp(String username, String path, String file, String path2, String file2) {
+	public void cp(String username, FilesToCopy fileToCopy) {
 		// TODO Auto-generated method stub
 
 	}
