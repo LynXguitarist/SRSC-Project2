@@ -11,7 +11,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import frontend.FilesToCopy;
+import client.FilesToCopy;
+import fileStorage.File;
 
 @Path(FileStorage.PATH)
 public interface FileStorage {
@@ -63,7 +64,7 @@ public interface FileStorage {
 	@POST
 	@Path("/{username}/{path}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	void put(@PathParam("username") String username, @PathParam("path") String path, String file);
+	void put(@PathParam("username") String username, @PathParam("path") String path, String fileName);
 
 	/**
 	 * Returns the file in the path
@@ -74,9 +75,9 @@ public interface FileStorage {
 	 * @return
 	 */
 	@GET
-	@Path("/{username}/{path}/{file}")
+	@Path("/{username}/{path}/{fileName}")
 	@Produces(MediaType.APPLICATION_JSON)
-	String get(@PathParam("username") String username, @PathParam("path") String path, @PathParam("file") String file);
+	File get(@PathParam("username") String username, @PathParam("path") String path, @PathParam("fileName") String fileName);
 
 	/**
 	 * copies file in path to file2 in path2
@@ -97,8 +98,8 @@ public interface FileStorage {
 	 * @param file
 	 */
 	@DELETE
-	@Path("/{username}/{path}/{file}")
-	void rm(@PathParam("username") String username, @PathParam("path") String path, @PathParam("file") String file);
+	@Path("/{username}/{path}/{fileName}")
+	void rm(@PathParam("username") String username, @PathParam("path") String path, @PathParam("fileName") String fileName);
 
 	/**
 	 * Deletes the dir from path. If there are no more files/dirs, removes the path
@@ -121,9 +122,9 @@ public interface FileStorage {
 	 * @return
 	 */
 	@GET
-	@Path("/file/{username}/{path}/{file}")
+	@Path("/file/{username}/{path}/{fileName}")
 	@Produces(MediaType.APPLICATION_JSON)
 	List<String> file(@PathParam("username") String username, @PathParam("path") String path,
-			@PathParam("file") String file);
+			@PathParam("fileName") String fileName);
 
 }

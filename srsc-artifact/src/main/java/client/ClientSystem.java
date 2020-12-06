@@ -17,7 +17,6 @@ import javax.ws.rs.core.Response.Status;
 import org.glassfish.jersey.client.ClientConfig;
 
 import api.FileStorage;
-import frontend.FilesToCopy;
 
 //Calls the services
 public class ClientSystem {

@@ -1,4 +1,4 @@
-package frontend;
+package client;
 
 public class FilesToCopy {
 

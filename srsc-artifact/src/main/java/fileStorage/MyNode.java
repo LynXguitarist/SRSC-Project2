@@ -42,6 +42,15 @@ public class MyNode {
 		}
 	}
 
+	public MyNode getChildByName(String name) {
+		MyNode child = null;
+		for (MyNode node : childs) {
+			if (node.getValue().equals(name))
+				child = node;
+		}
+		return child;
+	}
+
 	public String getIncrementPath() {
 		return incrementalPath;
 	}
