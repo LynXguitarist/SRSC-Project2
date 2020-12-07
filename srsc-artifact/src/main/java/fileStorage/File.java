@@ -7,8 +7,9 @@ public class File {
 	private byte[] binary;
 
 	public File(String name, String path, byte[] binary) {
-		this.setName(name);
-		this.setBinary(binary);
+		this.name = name;
+		this.path = path;
+		this.binary = binary;
 	}
 
 	public String getName() {

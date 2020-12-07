@@ -75,24 +75,34 @@ public class TestingFileStorage {
 		String[] split = controls.split(" ");
 		String username = split[0];
 		String path = split[1];
-		String fileName = split[2];
-		put(username, path, fileName);
+		put(username, path);
 	}
 
 	private static void mainGet(String controls) {
 		String[] split = controls.split(" ");
 		String username = split[0];
 		String path = split[1];
-		String fileName = split[2];
-		get(username, path, fileName);
+		get(username, path);
 	}
 
 	private static void mainCp(String controls) {
-
+		String[] split = controls.split(" ");
+		String username = split[0];
+		String path = split[1];
+		String[]path_file = path.split("/");
+		String file = path_file[path_file.length - 1];
+		String path2 = split[2];
+		String[]path2_file2 = path2.split("/");
+		String file2 = path2_file2[path2_file2.length - 1];
+		FilesToCopy fileToCopy = new FilesToCopy(path2, file, path2, file2);
+		cp(username, fileToCopy);
 	}
 
 	private static void mainRm(String controls) {
-
+		String[] split = controls.split(" ");
+		String username = split[0];
+		String path = split[1];
+		rm(username, path);
 	}
 
 	private static void mainRmdir(String controls) {
@@ -128,9 +138,9 @@ public class TestingFileStorage {
 				break;
 			}
 		}
-		for(String s : children)
+		for (String s : children)
 			System.out.println(s);
-				
+
 		return children;
 	}
 
@@ -158,20 +168,33 @@ public class TestingFileStorage {
 		}
 	}
 
-	public static void put(String username, String path, String fileName) {
+	public static void put(String username, String path) {
+		String parentPath = username;
+
+		String[] pathSplit = path.split("/");
+
+		for (int i = 0; i < pathSplit.length - 1; i++) {
+			parentPath += "/" + pathSplit[i];
+		}
+
 		for (MyTree tree : trees) {
-			if (tree.hasPath(path)) {
-				tree.addElement(username, path + "/" + fileName);
+			if (tree.hasPath(parentPath)) {
+				String fileName = tree.addElement(username, path);
 				tree.addFile(fileName, username + "/" + path, null); // ver como meter os binarios
 				break;
 			}
 		}
 	}
 
-	public static File get(String username, String path, String fileName) {
+	public static File get(String username, String path) {
+		String[] path_split = path.split("/");
+		String fileName = path_split[path_split.length - 1];
 		File file = null;
 		for (MyTree tree : trees) {
 			File f = tree.getFileByName(fileName);
+			if (f == null || f.getPath().equals(" ") || f.getPath() == null)
+				break;
+
 			if (f.getPath().equals(username + "/" + path)) {
 				file = f;
 				break;
@@ -186,7 +209,7 @@ public class TestingFileStorage {
 		String file = fileToCopy.getFile();
 		String file2 = fileToCopy.getFile2();
 		// if the path or file or path2 or file2 doesn't exist
-		if (get(username, path2, file2) == null || get(username, path, file) == null)
+		if (get(username, path) == null || get(username, path2) == null)
 			return;
 
 		for (MyTree tree : trees) {
@@ -199,10 +222,11 @@ public class TestingFileStorage {
 				}
 			}
 		}
-
 	}
 
-	public static void rm(String username, String path, String fileName) {
+	public static void rm(String username, String path) {
+		String[] path_split = path.split("/");
+		String fileName = path_split[path_split.length - 1];
 		for (MyTree tree : trees) {
 			for (File f : tree.files) {
 				if (f.getName().equals(fileName) && f.getPath().equals(username + "/" + path)) {

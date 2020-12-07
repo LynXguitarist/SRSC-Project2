@@ -16,16 +16,17 @@ public class MyNode {
 		this.incrementalPath = incrementalPath;
 	}
 
-	public void addElement(String currentPath, String[] list) {
+	public String addElement(String currentPath, String[] list) {
 		currentPath += "/" + list[0];
 
 		MyNode currentChild = new MyNode(list[0], currentPath);
 		int index = childs.indexOf(currentChild);
 		if (index == -1) {
 			childs.add(currentChild);
+			return currentChild.getValue();
 		} else {
 			MyNode nextChild = childs.get(index);
-			nextChild.addElement(currentPath, Arrays.copyOfRange(list, 1, list.length));
+			return nextChild.addElement(currentPath, Arrays.copyOfRange(list, 1, list.length));
 		}
 	}
 

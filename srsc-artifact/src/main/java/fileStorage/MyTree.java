@@ -16,12 +16,12 @@ public class MyTree {
 		this.files = new ArrayList<>();
 	}
 
-	public void addElement(String username, String value) {
+	public String addElement(String username, String value) {
 		String[] list = value.split("/");
 		if (list.length == 0)
 			list[0] = value;
 
-		root.addElement(username, list);
+		return root.addElement(username, list);
 	}
 
 	/**
@@ -110,8 +110,10 @@ public class MyTree {
 	public File getFileByName(String fileName) {
 		File file = null;
 		for (File f : files) {
-			if (f.getName().equals(fileName))
+			if (f.getName().equals(fileName)) {
 				file = f;
+				break;
+			}
 		}
 		return file;
 	}
