@@ -1,0 +1,1 @@
+Client precisa de ser tolerante a falhas, try catch(cuidado com erros 500, por exemplo os paths ir a vazio, tem de haver confirmação para isso)
