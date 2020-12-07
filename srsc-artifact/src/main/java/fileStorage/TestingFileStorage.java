@@ -20,32 +20,87 @@ public class TestingFileStorage {
 			String line = in.readLine();
 			String operation = line.split(" ")[0];
 			// rest of the line -> after the operation + username
-			String[] username_controls = line.substring(operation.length() + 1).split(" ");
-			String username = username_controls[0];
-			String controls = "";
-			if (username_controls.length > 1)
-				controls = username_controls[1];
-			else
-				controls = username;
+			String controls = line.substring(operation.length() + 1);
 
 			switch (operation) {
 			case "ls":
-				ls(controls);
+				mainLs(controls);
 				break;
 			case "mkdir":
-				mkdir(username, controls);
+				mainMkdir(controls);
 				break;
-			/*
-			 * case "put": put(controls); break; case "get": operationGet(controls); break;
-			 * case "cp": operationCp(controls); break; case "rm": operationRm(controls);
-			 * break; /*case "rmdir": operationRmdir(controls); break; case "file":
-			 * operationFile(controls); break
-			 */
-
+			case "put":
+				mainPut(controls);
+				break;
+			case "get":
+				mainGet(controls);
+				break;
+			case "cp":
+				mainCp(controls);
+				break;
+			case "rm":
+				mainRm(controls);
+				break;
+			case "rmdir":
+				mainRmdir(controls);
+				break;
+			case "file":
+				mainFile(controls);
+				break;
 			default:
 				return;
 			}
 		}
+	}
+
+	private static void mainLs(String controls) {
+		String[] split = controls.split(" ");
+		String username = split[0];
+		if (split.length == 2) {
+			String path = split[1];
+			ls(username, path);
+		} else {
+			ls(username);
+		}
+	}
+
+	private static void mainMkdir(String controls) {
+		String[] split = controls.split(" ");
+		String username = split[0];
+		String path = split[1];
+		mkdir(username, path);
+	}
+
+	private static void mainPut(String controls) {
+		String[] split = controls.split(" ");
+		String username = split[0];
+		String path = split[1];
+		String fileName = split[2];
+		put(username, path, fileName);
+	}
+
+	private static void mainGet(String controls) {
+		String[] split = controls.split(" ");
+		String username = split[0];
+		String path = split[1];
+		String fileName = split[2];
+		get(username, path, fileName);
+	}
+
+	private static void mainCp(String controls) {
+
+	}
+
+	private static void mainRm(String controls) {
+
+	}
+
+	private static void mainRmdir(String controls) {
+
+	}
+
+	private static void mainFile(String controls) {
+
 	}
 
 	public static List<String> ls(String username) {
@@ -65,14 +120,17 @@ public class TestingFileStorage {
 		return children;
 	}
 
-	public List<String> ls(String username, String path) {
+	public static List<String> ls(String username, String path) {
 		List<String> children = new LinkedList<>();
 		for (MyTree tree : trees) {
-			if (tree.hasPath(path)) {
+			if (tree.hasPath(username + "/" + path)) {
 				children = tree.getChildrenFromNode(path);
 				break;
 			}
 		}
+		for(String s : children)
+			System.out.println(s);
+				
 		return children;
 	}
 
@@ -100,7 +158,7 @@ public class TestingFileStorage {
 		}
 	}
 
-	public void put(String username, String path, String fileName) {
+	public static void put(String username, String path, String fileName) {
 		for (MyTree tree : trees) {
 			if (tree.hasPath(path)) {
 				tree.addElement(username, path + "/" + fileName);
@@ -110,7 +168,7 @@ public class TestingFileStorage {
 		}
 	}
 
-	public File get(String username, String path, String fileName) {
+	public static File get(String username, String path, String fileName) {
 		File file = null;
 		for (MyTree tree : trees) {
 			File f = tree.getFileByName(fileName);
@@ -122,7 +180,7 @@ public class TestingFileStorage {
 		return file;
 	}
 
-	public void cp(String username, FilesToCopy fileToCopy) {
+	public static void cp(String username, FilesToCopy fileToCopy) {
 		String path = fileToCopy.getPath();
 		String path2 = fileToCopy.getPath2();
 		String file = fileToCopy.getFile();
@@ -144,7 +202,7 @@ public class TestingFileStorage {
 
 	}
 
-	public void rm(String username, String path, String fileName) {
+	public static void rm(String username, String path, String fileName) {
 		for (MyTree tree : trees) {
 			for (File f : tree.files) {
 				if (f.getName().equals(fileName) && f.getPath().equals(username + "/" + path)) {
@@ -157,12 +215,12 @@ public class TestingFileStorage {
 
 	// OPTIONALS
 
-	public void rmdir(String username, String path) {
+	public static void rmdir(String username, String path) {
 		// TODO Auto-generated method stub
 
 	}
 
-	public List<String> file(String username, String path, String fileName) {
+	public static List<String> file(String username, String path, String fileName) {
 		// TODO Auto-generated method stub
 		return null;
 	}
