@@ -16,10 +16,12 @@ public class MyTree {
 		this.files = new ArrayList<>();
 	}
 
-	public void addElement(String value) {
+	public void addElement(String username, String value) {
 		String[] list = value.split("/");
+		if (list.length == 0)
+			list[0] = value;
 
-		root.addElement(root.getIncrementPath(), list);
+		root.addElement(username, list);
 	}
 
 	/**

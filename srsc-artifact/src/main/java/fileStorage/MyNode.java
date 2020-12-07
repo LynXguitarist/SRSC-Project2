@@ -7,38 +7,25 @@ import java.util.List;
 public class MyNode {
 
 	List<MyNode> childs;
-	List<MyNode> leafs;
 	private String value; // name of the path or file
 	private String incrementalPath;
 
 	public MyNode(String value, String incrementalPath) {
 		childs = new ArrayList<>();
-		leafs = new ArrayList<>();
 		this.value = value;
 		this.incrementalPath = incrementalPath;
 	}
 
-	public boolean isLeaf() {
-		return childs.isEmpty() && leafs.isEmpty();
-	}
-
 	public void addElement(String currentPath, String[] list) {
-		while (list[0] == null || list[0].equals(""))
-			list = Arrays.copyOfRange(list, 1, list.length);
+		currentPath += "/" + list[0];
 
-		MyNode currentChild = new MyNode(list[0], currentPath + "/" + list[0]);
-		if (list.length == 1) {
-			leafs.add(currentChild);
-			return;
+		MyNode currentChild = new MyNode(list[0], currentPath);
+		int index = childs.indexOf(currentChild);
+		if (index == -1) {
+			childs.add(currentChild);
 		} else {
-			int index = childs.indexOf(currentChild);
-			if (index == -1) {
-				childs.add(currentChild);
-				currentChild.addElement(currentChild.incrementalPath, Arrays.copyOfRange(list, 1, list.length));
-			} else {
-				MyNode nextChild = childs.get(index);
-				nextChild.addElement(currentChild.incrementalPath, Arrays.copyOfRange(list, 1, list.length));
-			}
+			MyNode nextChild = childs.get(index);
+			nextChild.addElement(currentPath, Arrays.copyOfRange(list, 1, list.length));
 		}
 	}
 
@@ -57,6 +44,12 @@ public class MyNode {
 
 	public String getValue() {
 		return value;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		MyNode cmpObj = (MyNode) obj;
+		return incrementalPath.equals(cmpObj.incrementalPath) && value.equals(cmpObj.value);
 	}
 
 }
