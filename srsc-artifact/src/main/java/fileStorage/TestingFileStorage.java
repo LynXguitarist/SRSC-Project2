@@ -88,13 +88,16 @@ public class TestingFileStorage {
 	private static void mainCp(String controls) {
 		String[] split = controls.split(" ");
 		String username = split[0];
+
 		String path = split[1];
-		String[]path_file = path.split("/");
+		String[] path_file = path.split("/");
 		String file = path_file[path_file.length - 1];
+
 		String path2 = split[2];
-		String[]path2_file2 = path2.split("/");
+		String[] path2_file2 = path2.split("/");
 		String file2 = path2_file2[path2_file2.length - 1];
-		FilesToCopy fileToCopy = new FilesToCopy(path2, file, path2, file2);
+
+		FilesToCopy fileToCopy = new FilesToCopy(path, file, path2, file2);
 		cp(username, fileToCopy);
 	}
 
@@ -208,19 +211,27 @@ public class TestingFileStorage {
 		String path2 = fileToCopy.getPath2();
 		String file = fileToCopy.getFile();
 		String file2 = fileToCopy.getFile2();
+
+		String parentPath2 = "";
+		String[] pathSplit = path2.split("/");
+		for (int i = 0; i < pathSplit.length; i++) {
+			parentPath2 += pathSplit[i] + "/";
+		}
 		// if the path or file or path2 or file2 doesn't exist
-		if (get(username, path) == null || get(username, path2) == null)
+		if (get(username, path) == null || get(username, parentPath2) == null)
 			return;
 
 		for (MyTree tree : trees) {
 			File f = tree.getFileByName(file);
-			if (f != null) {
-				if (f.getPath().equals(username + "/" + path)) {
-					tree.addElement(username, path2 + "/" + file2);
-					tree.addFile(file2, username + "/" + path2, tree.getFileByName(file).getBinary());
-					break;
-				}
+			if (f == null)
+				break;
+
+			if (f.getPath().equals(username + "/" + path)) {
+				tree.addElement(username, path2 + "/" + file2);
+				tree.addFile(file2, username + "/" + path2, f.getBinary());
+				break;
 			}
+
 		}
 	}
 
