@@ -81,11 +81,17 @@ public class MyTree {
 	 */
 	public void removeNode(String path) { // a/b
 		String[] parentPath = path.split("/");
-		MyNode nodeToRemove = root;
-		for (int i = 0; i < parentPath.length - 1; i++) {
-			nodeToRemove = nodeToRemove.getChildByName(parentPath[i]);
+		if (parentPath.length <= 1) {
+			MyNode child = root.getChildByName(path);
+			root.childs.remove(child);
+			return;
 		}
-		nodeToRemove.childs.remove(nodeToRemove);
+		MyNode parent = root;
+		for (int i = 0; i < parentPath.length - 1; i++) {
+			parent = parent.getChildByName(parentPath[i]);
+		}
+		MyNode childToRemove = parent.getChildByName(parentPath[parentPath.length - 1]);
+		parent.childs.remove(childToRemove);
 	}
 
 	public MyNode getHomeRoot() {
