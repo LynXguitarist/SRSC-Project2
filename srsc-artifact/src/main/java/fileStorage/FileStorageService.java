@@ -5,7 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import api.FileStorage;
-import client.FilesToCopy;
+import utils.File;
+import utils.FilesToCopy;
 
 public class FileStorageService implements FileStorage {
 

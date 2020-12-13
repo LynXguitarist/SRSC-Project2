@@ -11,8 +11,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import client.FilesToCopy;
-import fileStorage.File;
+import utils.File;
+import utils.FilesToCopy;
 
 @Path(FileStorage.PATH)
 public interface FileStorage {

@@ -6,7 +6,8 @@ import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
 
-import client.FilesToCopy;
+import utils.File;
+import utils.FilesToCopy;
 
 public class TestingFileStorage {
 
