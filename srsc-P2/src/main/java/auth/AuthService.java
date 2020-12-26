@@ -32,4 +32,9 @@ public class AuthService implements Auth {
 		return authTable.get(username).isActive();
 	}
 
+	@Override
+	public void deleteUser(String username) {
+		authTable.remove(username);
+	}
+
 }

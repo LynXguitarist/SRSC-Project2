@@ -9,7 +9,6 @@ import java.util.Map;
 import api.FileStorage;
 import utils.File;
 import utils.FilesToCopy;
-import utils.Permissions;
 
 public class FileStorageService implements FileStorage {
 
@@ -17,7 +16,7 @@ public class FileStorageService implements FileStorage {
 
 	private List<MyTree> trees;
 	// Saves the clients' permissions.
-	private Map<String, Permissions> sessionAuth;
+	private Map<String, String> sessionAuth;
 
 	public FileStorageService() {
 		trees = new ArrayList<>();

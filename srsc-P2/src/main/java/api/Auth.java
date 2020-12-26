@@ -1,6 +1,7 @@
 package api;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -30,4 +31,9 @@ public interface Auth {
 	@Path("/{username}")
 	@Produces(MediaType.APPLICATION_JSON)
 	boolean isActive(@PathParam("username") String username);
+
+	@DELETE
+	@Path("/{username}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	void deleteUser(@PathParam("username") String username);
 }
