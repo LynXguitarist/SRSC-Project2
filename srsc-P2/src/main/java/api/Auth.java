@@ -1,5 +1,7 @@
 package api;
 
+import java.io.IOException;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -12,7 +14,7 @@ import javax.ws.rs.core.MediaType;
 
 import utils.UserInfo;
 
-@Path(FileStorage.PATH)
+@Path(Auth.PATH)
 public interface Auth {
 
 	String PATH = "/auth";
@@ -30,7 +32,7 @@ public interface Auth {
 	@GET
 	@Path("/{username}")
 	@Produces(MediaType.APPLICATION_JSON)
-	boolean isActive(@PathParam("username") String username);
+	boolean isActive(@PathParam("username") String username) throws IOException;
 
 	@DELETE
 	@Path("/{username}")

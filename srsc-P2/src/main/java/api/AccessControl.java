@@ -9,7 +9,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 
-@Path(FileStorage.PATH)
+@Path(AccessControl.PATH)
 public interface AccessControl {
 
 	String PATH = "/path";
@@ -17,11 +17,11 @@ public interface AccessControl {
 	@POST
 	@Path("/{username}/{password}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	void login(@PathParam("username") String username, @PathParam("password") String password);
+	String login(@PathParam("username") String username, @PathParam("password") String password);
 
 	@GET
 	@Path("/{username}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	String getAccessPermission(@PathParam("username") String username);
+	String getAccessPermissions(@PathParam("username") String username);
 }

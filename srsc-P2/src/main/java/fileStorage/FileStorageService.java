@@ -6,6 +6,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+
+import org.glassfish.jersey.client.ClientConfig;
+
+import api.AccessControl;
 import api.FileStorage;
 import utils.File;
 import utils.FilesToCopy;
@@ -14,17 +26,27 @@ public class FileStorageService implements FileStorage {
 
 	// quando registado no sistema, cria homeRoot para o username
 
+	private static Client client;
+	private String serverUrl;
+
 	private List<MyTree> trees;
 	// Saves the clients' permissions.
 	private Map<String, String> sessionAuth;
 
-	public FileStorageService() {
+	public FileStorageService(String serverUrl) {
 		trees = new ArrayList<>();
 		sessionAuth = new HashMap<>();
+
+		this.serverUrl = serverUrl;
+		ClientConfig config = new ClientConfig();
+		client = ClientBuilder.newClient(config);
 	}
 
 	@Override
 	public List<String> ls(String username) {
+		if (getAuth(username).equals("deny"))
+			throw new WebApplicationException(Status.FORBIDDEN);
+
 		List<String> children = new LinkedList<>();
 		for (MyTree tree : trees) {
 			MyNode root = tree.getRoot();
@@ -42,6 +64,9 @@ public class FileStorageService implements FileStorage {
 
 	@Override
 	public List<String> ls(String username, String path) {
+		if (getAuth(username).equals("deny"))
+			throw new WebApplicationException(Status.FORBIDDEN);
+		
 		List<String> children = new LinkedList<>();
 		for (MyTree tree : trees) {
 			if (tree.hasPath(path)) {
@@ -54,6 +79,9 @@ public class FileStorageService implements FileStorage {
 
 	@Override
 	public void mkdir(String username, String path) {
+		if (!getAuth(username).equals("allow read write"))
+			throw new WebApplicationException(Status.FORBIDDEN);
+		
 		// verifies if the path has a file
 		// if has a file, it is an incorrect path
 		if (path.contains("."))
@@ -77,6 +105,9 @@ public class FileStorageService implements FileStorage {
 
 	@Override
 	public void put(String username, String path, String fileName) {
+		if (!getAuth(username).equals("allow read write"))
+			throw new WebApplicationException(Status.FORBIDDEN);
+		
 		for (MyTree tree : trees) {
 			if (tree.hasPath(path)) {
 				tree.addElement(username, path + "/" + fileName);
@@ -88,6 +119,9 @@ public class FileStorageService implements FileStorage {
 
 	@Override
 	public File get(String username, String path, String fileName) {
+		if (getAuth(username).equals("deny"))
+			throw new WebApplicationException(Status.FORBIDDEN);
+		
 		File file = null;
 		for (MyTree tree : trees) {
 			File f = tree.getFileByName(fileName);
@@ -101,6 +135,9 @@ public class FileStorageService implements FileStorage {
 
 	@Override
 	public void cp(String username, FilesToCopy fileToCopy) {
+		if (!getAuth(username).equals("allow read write"))
+			throw new WebApplicationException(Status.FORBIDDEN);
+		
 		String path = fileToCopy.getPath();
 		String path2 = fileToCopy.getPath2();
 		String file = fileToCopy.getFile();
@@ -124,6 +161,9 @@ public class FileStorageService implements FileStorage {
 
 	@Override
 	public void rm(String username, String path, String fileName) {
+		if (!getAuth(username).equals("allow read write"))
+			throw new WebApplicationException(Status.FORBIDDEN);
+		
 		for (MyTree tree : trees) {
 			for (File f : tree.files) {
 				if (f.getName().equals(fileName) && f.getPath().equals(username + "/" + path)) {
@@ -138,14 +178,44 @@ public class FileStorageService implements FileStorage {
 
 	@Override
 	public void rmdir(String username, String path) {
+		if (!getAuth(username).equals("allow read write"))
+			throw new WebApplicationException(Status.FORBIDDEN);
+		
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public List<String> file(String username, String path, String fileName) {
+		if (!getAuth(username).equals("allow read write"))
+			throw new WebApplicationException(Status.FORBIDDEN);
+		
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	// ------------------------------------------Client_Calls---------------------------------------//
+
+	private String getAuth(String username) {
+		String permissions = sessionAuth.get(username);
+		if (permissions != null)
+			return permissions;
+
+		// gets permissions for the user
+		WebTarget target = client.target(serverUrl).path(AccessControl.PATH);
+		Response r = target.path(username).request().accept(MediaType.APPLICATION_JSON).get();
+
+		if (r.getStatus() == Status.OK.getStatusCode()) {
+			if (!r.hasEntity())
+				System.out.println("The path is empty!");
+			else {
+				permissions = r.readEntity(new GenericType<String>() {
+				});
+			}
+		}
+		// saves user's permissions
+		sessionAuth.put(username, permissions);
+		return sessionAuth.get(username);
 	}
 
 }

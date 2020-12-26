@@ -98,6 +98,15 @@ public class ClientSystem {
 	private static void operationLogin(String controls) {
 		String username = controls.split(" ")[0];
 		String passowrd = controls.split(" ")[1];
+		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
+
+		Response r = target.path(username).path(passowrd).request().accept(MediaType.APPLICATION_JSON)
+				.post(Entity.entity(null, MediaType.APPLICATION_JSON));
+
+		if (r.getStatus() == Status.OK.getStatusCode())
+			System.out.println("Login succeded!");
+		else
+			System.out.println(r.getStatus() + " - can't login");
 
 	}
 

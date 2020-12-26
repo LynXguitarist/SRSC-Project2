@@ -42,20 +42,20 @@ public class FileServiceFrontEnd {
 		HttpsURLConnection.setDefaultHostnameVerifier(new InsecureHostnameVerifier());
 
 		ResourceConfig config = new ResourceConfig();
-		config.register(new FileStorageService());
+		config.register(new AccessControlService(serverURI.toString()));
 		config.register(new AuthService());
-		config.register(new AccessControlService());
+		config.register(new FileStorageService(serverURI.toString()));
 		// serverURI, ByteBuffer.wrap(localHost.getAddress()).getInt())
 
 		// usar TLS feito como na aula
 		try {
 			JdkHttpServerFactory.createHttpServer(serverURI, config, SSLContext.getDefault());
 		} catch (NoSuchAlgorithmException e) {
-			System.err.println("Invalid SSLL/TLS configuration.");
+			System.err.println("Invalid SSL/TLS configuration.");
 			e.printStackTrace();
 			System.exit(1);
 		}
 		Log.info(String.format("%s REST Server ready @ %s\n", serverURI));
 	}
-	
+
 }
