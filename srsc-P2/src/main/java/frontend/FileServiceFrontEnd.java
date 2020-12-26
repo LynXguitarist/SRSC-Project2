@@ -45,7 +45,6 @@ public class FileServiceFrontEnd {
 		config.register(new AccessControlService(serverURI.toString()));
 		config.register(new AuthService());
 		config.register(new FileStorageService(serverURI.toString()));
-		// serverURI, ByteBuffer.wrap(localHost.getAddress()).getInt())
 
 		// usar TLS feito como na aula
 		try {

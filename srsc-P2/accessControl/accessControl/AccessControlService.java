@@ -2,6 +2,8 @@ package accessControl;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.ws.rs.WebApplicationException;
@@ -17,19 +19,26 @@ import org.glassfish.jersey.client.ClientConfig;
 
 import api.AccessControl;
 import api.Auth;
+import utils.UserToken;
 
 public class AccessControlService implements AccessControl {
 
 	private static final String PATH = "access.conf";
+
+	// username, token
+	private Map<String, UserToken> tokens;
 
 	private Properties prop;
 	private static Client client;
 	private String serverUrl;
 
 	public AccessControlService(String serverUrl) {
+		this.tokens = new HashMap<>();
+
 		this.serverUrl = serverUrl;
 		ClientConfig config = new ClientConfig();
 		client = ClientBuilder.newClient(config);
+		
 		init();
 	}
 
@@ -64,10 +73,9 @@ public class AccessControlService implements AccessControl {
 
 		if (isActive) {
 			// verifica para aquele user as permissoes(getAccessPermissions)
-			String permission = getAccessPermissions(username);
-			String token = "";
 			// gera token
 			// guarda token em session para aquele user
+			String token = tokens.get(username).getToken();
 			return token;
 		}
 		// has no permissions, isn't active, etc...
