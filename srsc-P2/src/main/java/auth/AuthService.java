@@ -8,10 +8,21 @@ import utils.UserInfo;
 
 public class AuthService implements Auth {
 
+	// Username, UserInfo
 	private Map<String, UserInfo> authTable;
 
 	public AuthService() {
 		this.authTable = new Hashtable<>();
+	}
+
+	@Override
+	public void addUser(UserInfo userInfo) {
+		authTable.put(userInfo.getUsername(), userInfo);
+	}
+
+	@Override
+	public void updateUser(String username, UserInfo userInfo) {
+		authTable.put(username, userInfo);
 	}
 
 	@Override
@@ -20,4 +31,5 @@ public class AuthService implements Auth {
 			return false;
 		return authTable.get(username).isActive();
 	}
+
 }

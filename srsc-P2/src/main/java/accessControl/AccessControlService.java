@@ -9,7 +9,8 @@ public class AccessControlService implements AccessControl {
 		// gera token
 		// guarda token em session para aquele user
 		// verifica para aquele user as permissoes
-
+		// chama o MainDispatcher, que chama o AuthService para verificar se um cliente
+		// existe ou nao
 	}
 
 }

@@ -1,21 +1,27 @@
 package fileStorage;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import api.FileStorage;
 import utils.File;
 import utils.FilesToCopy;
+import utils.Permissions;
 
 public class FileStorageService implements FileStorage {
 
 	// quando registado no sistema, cria homeRoot para o username
 
 	private List<MyTree> trees;
+	// Saves the clients' permissions.
+	private Map<String, Permissions> sessionAuth;
 
 	public FileStorageService() {
 		trees = new ArrayList<>();
+		sessionAuth = new HashMap<>();
 	}
 
 	@Override
@@ -103,7 +109,7 @@ public class FileStorageService implements FileStorage {
 		// if the path or file or path2 or file2 doesn't exist
 		if (get(username, path2, file2) == null || get(username, path, file) == null)
 			return;
-		
+
 		for (MyTree tree : trees) {
 			File f = tree.getFileByName(file);
 			if (f != null) {
