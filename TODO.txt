@@ -16,4 +16,9 @@ Auth client-> DiffieHelman : VER LAB 5
 	{ A, Ktoken1024, TTL, || SecureRandom2+1 }Ks || AssinaturaAServer (A || Ktoken1024 || TTL
 	|| other-credential-att)
 
-Gerar tokens???
+
+Labs:
+	- Lab 7 -> 3-X509-MANIPULATION e 4-X509-certificates-manipulation-in-JAVA -> Ir buscar info a keystore e ler certificados
+	- Lab 7 -> TLS-CODE_JavaJSSE e AnotherTLS-EXAMPLE -> TLS programaticamente
+	- 1-URLs-JavaJSSESockets e 5-TLS-CODE-JavaJSSE-> Talvez para Connections SSL/TLS
+	- Diffie-Hellman -> Para fazer o DiffieHellman
