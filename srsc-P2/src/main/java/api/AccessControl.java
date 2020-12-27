@@ -8,16 +8,18 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import utils.AServer;
+
 
 @Path(AccessControl.PATH)
 public interface AccessControl {
 
-	String PATH = "/path";
+	String PATH = "/accessControl";
 
 	@POST
-	@Path("/{username}/{password}")
+	@Path("/{username}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	String login(@PathParam("username") String username, @PathParam("password") String password);
+	String login(@PathParam("username") String username, AServer aServer);
 
 	@GET
 	@Path("/{username}")

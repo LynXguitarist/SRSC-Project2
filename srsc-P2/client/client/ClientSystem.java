@@ -3,6 +3,7 @@ package client;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.security.SecureRandom;
 import java.util.List;
 
 import javax.ws.rs.client.Client;
@@ -16,14 +17,21 @@ import javax.ws.rs.core.Response.Status;
 
 import org.glassfish.jersey.client.ClientConfig;
 
+import api.AccessControl;
+import api.Auth;
 import api.FileStorage;
+import utils.AServer;
 import utils.FilesToCopy;
+import utils.Password;
+import utils.PublicNumDH;
+import utils.ResponsePNDH;
 
 //Calls the services
 public class ClientSystem {
 
-	private static Client client;
 	private static final String SERVER_URL = "https://localhost:8080";
+
+	private static Client client;
 
 	public static void main(String[] args) throws IOException {
 
@@ -37,11 +45,11 @@ public class ClientSystem {
 			// rest of the line -> after the operation
 			String controls = line.substring(operation.length());
 			switch (operation) {
-			case "ls":
-				operationLs(controls);
-				break;
 			case "Login":
 				operationLogin(controls);
+				break;
+			case "ls":
+				operationLs(controls);
 				break;
 			case "mkdir":
 				operationMkdir(controls);
@@ -70,6 +78,27 @@ public class ClientSystem {
 		}
 	}
 
+	private static void operationLogin(String controls) {
+		String username = controls.split(" ")[0];
+		String password = controls.split(" ")[1];
+
+		AServer aServer = DHCall(username, password);
+		if(aServer != null) {
+			String token = "";
+			
+			// calls login in accessControl
+			WebTarget target = client.target(SERVER_URL).path(AccessControl.PATH);
+
+			Response r = target.path(username).request().accept(MediaType.APPLICATION_JSON)
+					.post(Entity.entity(aServer, MediaType.APPLICATION_JSON));
+			
+			if (r.getStatus() == Status.OK.getStatusCode()) 
+				token = r.readEntity(new GenericType<String>() {});
+			else
+				System.out.println(r.getStatus() + " - user doesn't have access!");
+		}
+	}
+
 	private static void operationLs(String controls) {
 		String username = controls.split(" ")[0];
 		String path = controls.split(" ")[1];
@@ -93,21 +122,6 @@ public class ClientSystem {
 			}
 		} else
 			System.out.println(r.getStatus() + " - error while listing dirs and files!");
-	}
-
-	private static void operationLogin(String controls) {
-		String username = controls.split(" ")[0];
-		String passowrd = controls.split(" ")[1];
-		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
-
-		Response r = target.path(username).path(passowrd).request().accept(MediaType.APPLICATION_JSON)
-				.post(Entity.entity(null, MediaType.APPLICATION_JSON));
-
-		if (r.getStatus() == Status.OK.getStatusCode())
-			System.out.println("Login succeded!");
-		else
-			System.out.println(r.getStatus() + " - can't login");
-
 	}
 
 	private static void operationMkdir(String controls) {
@@ -232,6 +246,46 @@ public class ClientSystem {
 			}
 		} else
 			System.out.println(r.getStatus() + " - error while listing file!");
+	}
+
+	// -----------------------------------DH------------------------------------------//
+
+	private static AServer DHCall(String username, String password) {
+		PublicNumDH pDH = null;
+		// First part of the aggrement
+		// send username
+		synchronized (username) {
+			WebTarget target = client.target(SERVER_URL).path(Auth.PATH);
+
+			Response r = target.path("dh").path(username).request().accept(MediaType.APPLICATION_OCTET_STREAM).get();
+
+			if (r.getStatus() == Status.OK.getStatusCode()) {
+				pDH = r.readEntity(PublicNumDH.class);
+			} else {
+				System.out.println(r.getStatus() + " - failed aggreement...");
+				return null;
+			}
+		}
+
+		// Receives PublicKey
+		// sends response
+		
+		Password pass = new Password(password, pDH.getRandom().nextInt());
+		// encrypt password
+		byte[] encPassword = null;
+		SecureRandom random2 = new SecureRandom();
+		String yClient = "";
+
+		ResponsePNDH response = new ResponsePNDH(encPassword, random2, yClient);
+
+		WebTarget target = client.target(SERVER_URL).path(Auth.PATH);
+
+		// get the token, ttl, A and credentials
+		AServer aServer = target.path("dh").request().accept(MediaType.APPLICATION_OCTET_STREAM)
+				.post(Entity.entity(response, MediaType.APPLICATION_OCTET_STREAM), AServer.class);
+
+		return aServer;
+
 	}
 
 }

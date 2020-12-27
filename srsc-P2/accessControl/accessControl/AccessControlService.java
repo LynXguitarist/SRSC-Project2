@@ -19,6 +19,7 @@ import org.glassfish.jersey.client.ClientConfig;
 
 import api.AccessControl;
 import api.Auth;
+import utils.AServer;
 import utils.UserToken;
 
 public class AccessControlService implements AccessControl {
@@ -38,7 +39,7 @@ public class AccessControlService implements AccessControl {
 		this.serverUrl = serverUrl;
 		ClientConfig config = new ClientConfig();
 		client = ClientBuilder.newClient(config);
-		
+
 		init();
 	}
 
@@ -55,31 +56,13 @@ public class AccessControlService implements AccessControl {
 	}
 
 	@Override
-	public String login(String username, String password) {
-		boolean isActive = false;
-		// chama o AuthService para verificar se um cliente existe ou nao(client call)
-		WebTarget target = client.target(serverUrl).path(Auth.PATH);
-		Response r = target.path(username).request().accept(MediaType.APPLICATION_JSON).get();
-
-		if (r.getStatus() == Status.OK.getStatusCode()) {
-			if (!r.hasEntity())
-				System.out.println("The path is empty!");
-			else {
-				isActive = r.readEntity(new GenericType<Boolean>() {
-				});
-			}
-		} else
-			throw new WebApplicationException(Status.NOT_FOUND);
-
-		if (isActive) {
-			// verifica para aquele user as permissoes(getAccessPermissions)
-			// gera token
-			// guarda token em session para aquele user
-			String token = tokens.get(username).getToken();
-			return token;
-		}
-		// has no permissions, isn't active, etc...
-		throw new WebApplicationException(Status.FORBIDDEN);
+	public String login(String username, AServer aServer) {
+		String token = aServer.getkToken().getkToken1024();
+		long ttl = aServer.getkToken().getTtl();
+		
+		tokens.put(username, new UserToken(token, ttl));
+		
+		return token;
 	}
 
 	@Override

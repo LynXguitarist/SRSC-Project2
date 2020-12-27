@@ -1,5 +1,11 @@
 - Client precisa de ser tolerante a falhas, try catch(cuidado com erros 500, por exemplo os paths ir a vazio, tem de haver confirmação para isso)
 
+- NOTA: SEPARA EM VARIOS SERVER EM VEZ DE SO UM
+
+- TOKEN NOS HEADERS, VER O QUE ESTÁ NOS FAVORITOS
+
+- DO LOGIN PODE VIR O USER_TOKEN, PARA SE USAR NOS SERVICES
+
 TLS : VER LAB 7
 	- trustores e keystores -> VER LAB 6
 	- configuração do file, tls.conf(atender ao que é pedido no enunciado)
@@ -18,7 +24,7 @@ Auth client-> DiffieHelman : VER LAB 5
 
 
 Labs:
-	- Lab 7 -> 3-X509-MANIPULATION e 4-X509-certificates-manipulation-in-JAVA -> Ir buscar info a keystore e ler certificados
-	- Lab 7 -> TLS-CODE_JavaJSSE e AnotherTLS-EXAMPLE -> TLS programaticamente
-	- 1-URLs-JavaJSSESockets e 5-TLS-CODE-JavaJSSE-> Talvez para Connections SSL/TLS
-	- Diffie-Hellman -> Para fazer o DiffieHellman
+	- Lab 7 -> 3-X509-MANIPULATION e 4-X509-certificates-manipulation-in-JAVA -> Ir buscar info a keystore e ler certificados(Ricardo)
+	- Lab 7 -> TLS-CODE_JavaJSSE e AnotherTLS-EXAMPLE -> TLS programaticamente(Ricardo)
+	- 1-URLs-JavaJSSESockets e 5-TLS-CODE-JavaJSSE-> Talvez para Connections SSL/TLS(Ricardo/Fred)
+	- Diffie-Hellman -> Para fazer o DiffieHellman(Fred)

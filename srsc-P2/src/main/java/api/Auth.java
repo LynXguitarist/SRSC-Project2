@@ -12,6 +12,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import utils.AServer;
+import utils.PublicNumDH;
+import utils.ResponsePNDH;
 import utils.UserInfo;
 
 @Path(Auth.PATH)
@@ -38,4 +41,17 @@ public interface Auth {
 	@Path("/{username}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	void deleteUser(@PathParam("username") String username);
+
+	// ----------------------------DH---------------------------//
+
+	@GET
+	@Path("/dh/{username}")
+	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	PublicNumDH startDH(@PathParam("username") String username);
+
+	@POST
+	@Path("/dh")
+	@Consumes(MediaType.APPLICATION_OCTET_STREAM)
+	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	AServer lastAggreement(ResponsePNDH response);
 }

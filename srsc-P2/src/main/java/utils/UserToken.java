@@ -3,9 +3,9 @@ package utils;
 public class UserToken {
 
 	private String token;
-	private int ttl;
+	private long ttl;
 
-	public UserToken(String token, int ttl) {
+	public UserToken(String token, long ttl) {
 		this.token = token;
 		this.ttl = ttl;
 	}
@@ -18,7 +18,7 @@ public class UserToken {
 		this.token = token;
 	}
 
-	public int getTtl() {
+	public long getTtl() {
 		return ttl;
 	}
 

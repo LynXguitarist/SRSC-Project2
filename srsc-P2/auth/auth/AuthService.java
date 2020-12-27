@@ -3,6 +3,7 @@ package auth;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -10,10 +11,15 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
 
 import api.Auth;
+import utils.AServer;
+import utils.KToken;
+import utils.PublicNumDH;
+import utils.ResponsePNDH;
 import utils.UserInfo;
 
 public class AuthService implements Auth {
 
+	private static final int TTL = 300000; // 5 min
 	private static final String AUTH_FILE = "authTable.conf";
 	// Username, UserInfo
 	private Map<String, UserInfo> authTable;
@@ -67,6 +73,36 @@ public class AuthService implements Auth {
 		UserInfo user = new UserInfo(username, userInfo[1], userInfo[2], userInfo[3],
 				Boolean.parseBoolean(userInfo[4]));
 		authTable.put(username, user);
+	}
+	
+	//---------------------------------DH-------------------------------------//
+
+	@Override
+	public PublicNumDH startDH(String username) {
+		// verify user -> username
+		
+		SecureRandom random = new SecureRandom();
+		// Yserver vem do DH
+		String Yaserver = "";
+		
+		PublicNumDH pub = new PublicNumDH(random, Yaserver);
+		
+		return pub;
+	}
+
+	@Override
+	public AServer lastAggreement(ResponsePNDH response) {
+		String A ="";
+		String kToken1024 = "";
+		long ttl = System.currentTimeMillis() + TTL;
+		String other = "";
+		
+		KToken kToken = new KToken(A, kToken1024, ttl, other);
+		int random2 = response.getRandom2().nextInt();
+		
+		AServer aServer = new AServer(kToken, random2);
+		
+		return aServer;
 	}
 
 }
