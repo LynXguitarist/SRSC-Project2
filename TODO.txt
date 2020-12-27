@@ -1,4 +1,4 @@
-Client precisa de ser tolerante a falhas, try catch(cuidado com erros 500, por exemplo os paths ir a vazio, tem de haver confirmação para isso)
+- Client precisa de ser tolerante a falhas, try catch(cuidado com erros 500, por exemplo os paths ir a vazio, tem de haver confirmação para isso)
 
 TLS : VER LAB 7
 	- trustores e keystores -> VER LAB 6
