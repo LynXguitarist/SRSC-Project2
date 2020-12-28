@@ -32,11 +32,13 @@ public class ClientSystem {
 	private static final String SERVER_URL = "https://localhost:8080";
 
 	private static Client client;
+	private static String token;
 
 	public static void main(String[] args) throws IOException {
 
 		ClientConfig config = new ClientConfig();
 		client = ClientBuilder.newClient(config);
+		token = ""; // to prevent NullPointer
 
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		while (true) {
@@ -83,17 +85,17 @@ public class ClientSystem {
 		String password = controls.split(" ")[1];
 
 		AServer aServer = DHCall(username, password);
-		if(aServer != null) {
-			String token = "";
-			
+		if (aServer != null) {
+			token = "";
+
 			// calls login in accessControl
 			WebTarget target = client.target(SERVER_URL).path(AccessControl.PATH);
 
 			Response r = target.path(username).request().accept(MediaType.APPLICATION_JSON)
 					.post(Entity.entity(aServer, MediaType.APPLICATION_JSON));
-			
-			if (r.getStatus() == Status.OK.getStatusCode()) 
-				token = r.readEntity(new GenericType<String>() {});
+
+			if (r.getStatus() == Status.OK.getStatusCode())
+				token = r.getHeaderString("Authorization");
 			else
 				System.out.println(r.getStatus() + " - user doesn't have access!");
 		}
@@ -106,9 +108,10 @@ public class ClientSystem {
 		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
 		Response r = null;
 		if (path != "")
-			r = target.path(username).path(path).request().accept(MediaType.APPLICATION_JSON).get();
+			r = target.path(username).path(path).request().header("Authorization", token)
+					.accept(MediaType.APPLICATION_JSON).get();
 		else
-			r = target.path(username).request().accept(MediaType.APPLICATION_JSON).get();
+			r = target.path(username).request().header("Authorization", token).accept(MediaType.APPLICATION_JSON).get();
 
 		if (r.getStatus() == Status.OK.getStatusCode()) {
 			if (!r.hasEntity())
@@ -130,7 +133,7 @@ public class ClientSystem {
 
 		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
 
-		Response r = target.path(username).request().accept(MediaType.APPLICATION_JSON)
+		Response r = target.path(username).request().header("Authorization", token).accept(MediaType.APPLICATION_JSON)
 				.post(Entity.entity(path, MediaType.APPLICATION_JSON));
 
 		if (r.getStatus() == Status.OK.getStatusCode())
@@ -148,8 +151,8 @@ public class ClientSystem {
 
 		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
 
-		Response r = target.path(username).path(path).request().accept(MediaType.APPLICATION_JSON)
-				.post(Entity.entity(file, MediaType.APPLICATION_JSON));
+		Response r = target.path(username).path(path).request().header("Authorization", token)
+				.accept(MediaType.APPLICATION_JSON).post(Entity.entity(file, MediaType.APPLICATION_JSON));
 
 		if (r.getStatus() == Status.OK.getStatusCode())
 			System.out.println("File " + file + " now in path " + path);
@@ -166,7 +169,8 @@ public class ClientSystem {
 
 		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
 
-		Response r = target.path(username).path(path).path(file).request().accept(MediaType.APPLICATION_JSON).get();
+		Response r = target.path(username).path(path).path(file).request().header("Authorization", token)
+				.accept(MediaType.APPLICATION_JSON).get();
 
 		if (r.getStatus() == Status.OK.getStatusCode()) {
 			String fileResponse = r.readEntity(new GenericType<String>() {
@@ -188,7 +192,7 @@ public class ClientSystem {
 
 		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
 
-		Response r = target.path(username).request().accept(MediaType.APPLICATION_JSON)
+		Response r = target.path(username).request().header("Authorization", token).accept(MediaType.APPLICATION_JSON)
 				.post(Entity.entity(filesToCopy, MediaType.APPLICATION_JSON));
 
 		if (r.getStatus() == Status.OK.getStatusCode())
@@ -205,7 +209,8 @@ public class ClientSystem {
 
 		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
 
-		Response r = target.path(username).path(path).path(file).request().accept(MediaType.APPLICATION_JSON).delete();
+		Response r = target.path(username).path(path).path(file).request().header("Authorization", token)
+				.accept(MediaType.APPLICATION_JSON).delete();
 
 		if (r.getStatus() == Status.OK.getStatusCode())
 			System.out.println(path + "/" + file + " deleted!");
@@ -219,7 +224,8 @@ public class ClientSystem {
 
 		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
 
-		Response r = target.path(username).path(path).request().accept(MediaType.APPLICATION_JSON).delete();
+		Response r = target.path(username).path(path).request().header("Authorization", token)
+				.accept(MediaType.APPLICATION_JSON).delete();
 
 		if (r.getStatus() == Status.OK.getStatusCode())
 			System.out.println(path + " deleted!");
@@ -235,7 +241,7 @@ public class ClientSystem {
 
 		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
 
-		Response r = target.path("file").path(username).path(path).path(file).request()
+		Response r = target.path("file").path(username).path(path).path(file).request().header("Authorization", token)
 				.accept(MediaType.APPLICATION_JSON).get();
 
 		if (r.getStatus() == Status.OK.getStatusCode()) {
@@ -269,7 +275,7 @@ public class ClientSystem {
 
 		// Receives PublicKey
 		// sends response
-		
+
 		Password pass = new Password(password, pDH.getRandom().nextInt());
 		// encrypt password
 		byte[] encPassword = null;

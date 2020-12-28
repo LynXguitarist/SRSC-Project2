@@ -6,19 +6,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import org.glassfish.jersey.client.ClientConfig;
 
 import api.AccessControl;
-import api.Auth;
 import utils.AServer;
 import utils.UserToken;
 
@@ -56,17 +50,36 @@ public class AccessControlService implements AccessControl {
 	}
 
 	@Override
-	public String login(String username, AServer aServer) {
+	public Response login(String username, AServer aServer) {
 		String token = aServer.getkToken().getkToken1024();
 		long ttl = aServer.getkToken().getTtl();
-		
+
 		tokens.put(username, new UserToken(token, ttl));
+
+		Response response = Response.status(Response.Status.OK).header("Authorization", token).build();
+
+		return response;
+	}
+
+	@Override
+	public boolean isTokenValid(String username) {
+		UserToken token = tokens.get(username);
+
+		if (token != null) {
+			long ttl = token.getTtl();
+			// if ttl > currentTime in miliseconds
+			return ttl - System.currentTimeMillis() > 0;
+		}
 		
-		return token;
+		return false;
 	}
 
 	@Override
 	public String getAccessPermissions(String username) {
+		// since token isn't valid, permission will be = "deny"
+		if(isTokenValid(username))
+			return "deny";
+		
 		String permission = prop.getProperty(username);
 		return permission;
 	}

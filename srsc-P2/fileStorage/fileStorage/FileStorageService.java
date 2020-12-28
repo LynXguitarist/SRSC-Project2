@@ -239,7 +239,7 @@ public class FileStorageService implements FileStorage {
 
 		if (r.getStatus() == Status.OK.getStatusCode()) {
 			if (!r.hasEntity())
-				System.out.println("The path is empty!");
+				System.out.println("The body is empty!");
 			else {
 				permissions = r.readEntity(new GenericType<String>() {
 				});
