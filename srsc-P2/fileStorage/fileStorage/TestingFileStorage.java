@@ -1,10 +1,12 @@
 package fileStorage;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
 
 import utils.File;
 import utils.FilesToCopy;
@@ -12,6 +14,10 @@ import utils.FilesToCopy;
 public class TestingFileStorage {
 
 	private static List<MyTree> trees;
+	
+	// USA ISTO
+	private static Properties prop;
+	private static final String PATH = "access.conf";
 
 	public static void main(String[] args) throws IOException {
 		trees = new LinkedList<>();
@@ -48,6 +54,8 @@ public class TestingFileStorage {
 			case "file":
 				mainFile(controls);
 				break;
+			case "prop":
+				prop();
 			default:
 				return;
 			}
@@ -259,6 +267,18 @@ public class TestingFileStorage {
 	public static List<String> file(String username, String path, String fileName) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	private static final void prop() {
+		prop = new Properties();
+		FileReader file;
+		try {
+			file = new FileReader(PATH);
+			prop.load(file);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
