@@ -48,8 +48,9 @@ public class FileServiceFrontEnd {
 
 		// usar TLS feito como na aula
 		try {
-			JdkHttpServerFactory.createHttpServer(serverURI, config, SSLContext.getDefault());
-		} catch (NoSuchAlgorithmException e) {
+			// SSLContext.getDefault()
+			JdkHttpServerFactory.createHttpServer(serverURI, config, TLS_SERVER.getSSLContext());
+		} catch (Exception e) {
 			System.err.println("Invalid SSL/TLS configuration.");
 			e.printStackTrace();
 			System.exit(1);

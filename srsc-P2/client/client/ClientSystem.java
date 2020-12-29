@@ -1,13 +1,11 @@
 package client;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.Key;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
-import java.security.Signature;
 import java.util.List;
 
 import javax.crypto.Cipher;
@@ -20,8 +18,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-
-import org.glassfish.jersey.client.ClientConfig;
 
 import api.AccessControl;
 import api.Auth;
@@ -44,16 +40,25 @@ public class ClientSystem {
 
 	public static void main(String[] args) throws Exception {
 
-		ClientConfig config = new ClientConfig();
-		client = ClientBuilder.newClient(config);
+		// ClientConfig config = new ClientConfig();
+		// client = ClientBuilder.newClient(config);
+		
+		client = ClientBuilder.newBuilder().sslContext(TLS_CLIENT.getSSLContext()).build();
 		token = ""; // to prevent NullPointer
 
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		while (true) {
 			String line = in.readLine();
-			String operation = line.split(" ")[0];
-			// rest of the line -> after the operation
-			String controls = line.substring(operation.length());
+			String operation = "";
+			String controls = "";
+			try {
+				operation = line.split(" ")[0];
+				// rest of the line -> after the operation
+				controls = line.substring(operation.length());
+			} catch (StringIndexOutOfBoundsException e) {
+				e.printStackTrace();
+				System.out.println("You need to choose a file/dir!");
+			}
 			switch (operation) {
 			case "Login":
 				operationLogin(controls);
@@ -119,7 +124,8 @@ public class ClientSystem {
 			r = target.path(username).path(path).request().header(HttpHeaders.AUTHORIZATION, token)
 					.accept(MediaType.APPLICATION_JSON).get();
 		else
-			r = target.path(username).request().header(HttpHeaders.AUTHORIZATION, token).accept(MediaType.APPLICATION_JSON).get();
+			r = target.path(username).request().header(HttpHeaders.AUTHORIZATION, token)
+					.accept(MediaType.APPLICATION_JSON).get();
 
 		if (r.getStatus() == Status.OK.getStatusCode()) {
 			if (!r.hasEntity())
@@ -141,8 +147,8 @@ public class ClientSystem {
 
 		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
 
-		Response r = target.path(username).request().header(HttpHeaders.AUTHORIZATION, token).accept(MediaType.APPLICATION_JSON)
-				.post(Entity.entity(path, MediaType.APPLICATION_JSON));
+		Response r = target.path(username).request().header(HttpHeaders.AUTHORIZATION, token)
+				.accept(MediaType.APPLICATION_JSON).post(Entity.entity(path, MediaType.APPLICATION_JSON));
 
 		if (r.getStatus() == Status.OK.getStatusCode())
 			System.out.println("Path " + path + " created successfully!");
@@ -200,8 +206,8 @@ public class ClientSystem {
 
 		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
 
-		Response r = target.path(username).request().header(HttpHeaders.AUTHORIZATION, token).accept(MediaType.APPLICATION_JSON)
-				.post(Entity.entity(filesToCopy, MediaType.APPLICATION_JSON));
+		Response r = target.path(username).request().header(HttpHeaders.AUTHORIZATION, token)
+				.accept(MediaType.APPLICATION_JSON).post(Entity.entity(filesToCopy, MediaType.APPLICATION_JSON));
 
 		if (r.getStatus() == Status.OK.getStatusCode())
 			System.out.println("File " + path + "/" + file + " copied to the file " + path2 + "/" + file2);
@@ -249,8 +255,8 @@ public class ClientSystem {
 
 		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
 
-		Response r = target.path("file").path(username).path(path).path(file).request().header(HttpHeaders.AUTHORIZATION, token)
-				.accept(MediaType.APPLICATION_JSON).get();
+		Response r = target.path("file").path(username).path(path).path(file).request()
+				.header(HttpHeaders.AUTHORIZATION, token).accept(MediaType.APPLICATION_JSON).get();
 
 		if (r.getStatus() == Status.OK.getStatusCode()) {
 			List<String> listOfAttr = r.readEntity(new GenericType<List<String>>() {
@@ -313,7 +319,7 @@ public class ClientSystem {
 		// Hash it
 		MessageDigest sh = MessageDigest.getInstance("SHA-512");
 		byte[] hashedPWD = sh.digest(PWDBytes);
-		
+
 		// cipher it
 		Cipher cipher = Cipher.getInstance("AES/ECB/PKCS7Padding", "BC");
 

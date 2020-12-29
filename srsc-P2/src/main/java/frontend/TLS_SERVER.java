@@ -1,106 +1,64 @@
 package frontend;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.security.KeyStore;
 import java.util.Properties;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocketFactory;
 
 public class TLS_SERVER {
 
-	public static void main(String[] args) throws Exception {
-		String host = null;
-		int port = -1;
-		String path = null;
-		for (int i = 0; i < args.length; i++)
-			System.out.println(args[i]);
+	private static final String TLS_FILE = "tls.conf";
+	//private static final String TRUST_FILE = "trustedserverstore";
+	private static final String KEY_FILE = "server.jks";
 
-		if (args.length < 3) {
-			System.out.println("USAGE: java SSLSocketClientWithClientAuth " + "host port requestedfilepath");
-			System.exit(-1);
-		}
+	private static Properties prop;
 
-		try {
-			host = args[0];
-			port = Integer.parseInt(args[1]);
-			path = args[2];
-		} catch (IllegalArgumentException e) {
-			System.out.println("USAGE: java SSLSocketClientWithClientAuth " + "host port requestedfilepath");
-			System.exit(-1);
-		}
+	public static SSLContext getSSLContext() throws Exception {
+		/*
+		 * Set up a key manager for client authentication if asked by the server. Use
+		 * the implementation's default TrustStore and secureRandom routines.
+		 */
+		SSLSocketFactory factory = null;
 
-		try {
+		prop = new Properties();
+		FileReader file = new FileReader(TLS_FILE);
+		prop.load(file);
 
-			/*
-			 * Set up a key manager for client authentication if asked by the server. Use
-			 * the implementation's default TrustStore and secureRandom routines.
-			 */
-			SSLSocketFactory factory = null;
-			try {
-				SSLContext ctx;
-				KeyManagerFactory kmf;
-				KeyStore ks;
-				char[] passphrase = "client".toCharArray();
+		String[] confciphersuites = prop.getProperty("CIPHERSUITES").split(",");
 
-				ctx = SSLContext.getInstance("TLS");
-				kmf = KeyManagerFactory.getInstance("SunX509");
-				ks = KeyStore.getInstance("JKS");
-				
-				ks.load(new FileInputStream("trustedstore"), passphrase);
-				
-				kmf.init(ks, passphrase);
-				ctx.init(kmf.getKeyManagers(), null, null);
+		char[] passphrase = "client".toCharArray();
 
-				factory = ctx.getSocketFactory();
-			} catch (Exception e) {
-				throw new IOException(e.getMessage());
-			}
+		String tls = "";
+		if (prop.getProperty("TLS-PROT-ENF").equals("TLS-1.1"))
+			tls = "TLSv1.1";
+		else
+			tls = "TLSv1.2";
 
-			SSLSocket socket = (SSLSocket) factory.createSocket(host, port);
+		SSLContext ctx = SSLContext.getInstance(tls);
 
-			/*
-			 * send http request
-			 *
-			 * See SSLSocketClient.java for more information about why there is a forced
-			 * handshake here when using PrintWriters.
-			 */
-			socket.startHandshake();
+		KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+		KeyStore ks = KeyStore.getInstance("JKS");
 
-			PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())));
-			out.println("GET " + path + " HTTP/1.0");
-			out.println();
-			out.flush();
+		ks.load(new FileInputStream(KEY_FILE), passphrase);
 
-			/*
-			 * Make sure there were no surprises
-			 */
-			if (out.checkError())
-				System.out.println("SSLSocketClient: java.io.PrintWriter error");
+		kmf.init(ks, passphrase);
+		ctx.init(kmf.getKeyManagers(), null, null);
 
-			/* read response */
-			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		factory = ctx.getSocketFactory();
 
-			String inputLine;
+		SSLServerSocketFactory ssf = ctx.getServerSocketFactory();
+		SSLServerSocket s = (SSLServerSocket) ssf.createServerSocket(8080);
 
-			while ((inputLine = in.readLine()) != null)
-				System.out.println(inputLine);
+		// s.setEnabledProtocols(confprotocols);
+		s.setEnabledCipherSuites(confciphersuites);
 
-			in.close();
-			out.close();
-			socket.close();
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		return ctx;
 	}
+
 }
