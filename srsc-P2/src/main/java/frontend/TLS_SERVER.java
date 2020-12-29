@@ -50,7 +50,7 @@ public class TLS_SERVER {
 				SSLContext ctx;
 				KeyManagerFactory kmf;
 				KeyStore ks;
-				char[] passphrase = "clientsrsc".toCharArray();
+				char[] passphrase = "client".toCharArray();
 
 				ctx = SSLContext.getInstance("TLS");
 				kmf = KeyManagerFactory.getInstance("SunX509");
