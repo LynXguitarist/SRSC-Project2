@@ -1,6 +1,7 @@
 package utils;
 
 import java.io.Serializable;
+import java.security.KeyPair;
 import java.security.SecureRandom;
 
 public class ResponsePNDH implements Serializable{
@@ -15,9 +16,9 @@ public class ResponsePNDH implements Serializable{
 	// with H and Ks
 	private byte[] encPassword;
 	private SecureRandom random2;
-	private String yClient;
+	private KeyPair yClient;
 
-	public ResponsePNDH(byte[] encPassword, SecureRandom random2, String yClient) {
+	public ResponsePNDH(byte[] encPassword, SecureRandom random2, KeyPair yClient) {
 		this.encPassword = encPassword;
 		this.random2 = random2;
 		this.yClient = yClient;
@@ -31,7 +32,7 @@ public class ResponsePNDH implements Serializable{
 		return random2;
 	}
 
-	public String getyClient() {
+	public KeyPair getyClient() {
 		return yClient;
 	}
 

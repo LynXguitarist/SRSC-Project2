@@ -8,6 +8,7 @@ import java.util.Properties;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.client.ClientConfig;
@@ -19,6 +20,7 @@ import utils.UserToken;
 public class AccessControlService implements AccessControl {
 
 	private static final String PATH = "access.conf";
+	private static final int TTL = 300000; // 5 min
 
 	// username, token
 	private Map<String, UserToken> tokens;
@@ -61,25 +63,33 @@ public class AccessControlService implements AccessControl {
 		return response;
 	}
 
-	@Override
-	public boolean isTokenValid(String username) {
+	private boolean isTokenValid(String username, String tokenFC) {
 		UserToken token = tokens.get(username);
 
 		if (token != null) {
+			if (!token.getToken().equals(tokenFC))
+				return false;
+
 			long ttl = token.getTtl();
 			// if ttl > currentTime in miliseconds
-			return ttl - System.currentTimeMillis() > 0;
+			if (ttl - System.currentTimeMillis() > 0) {
+				// updates ttl
+				tokens.put(username, new UserToken(tokenFC, ttl + TTL));
+				return true;
+			}
 		}
-		
 		return false;
 	}
 
 	@Override
-	public String getAccessPermissions(String username) {
+	public String getAccessPermissions(String username, HttpHeaders headers) {
+		// token from client
+		String tokenFC = headers.getRequestHeader(HttpHeaders.AUTHORIZATION).get(0);
+
 		// since token isn't valid, permission will be = "deny"
-		if(isTokenValid(username))
+		if (isTokenValid(username, tokenFC))
 			return "deny";
-		
+
 		String permission = prop.getProperty(username);
 		return permission;
 	}

@@ -1,6 +1,7 @@
 package utils;
 
 import java.io.Serializable;
+import java.security.KeyPair;
 import java.security.SecureRandom;
 
 public class PublicNumDH implements Serializable {
@@ -11,9 +12,9 @@ public class PublicNumDH implements Serializable {
 	private static final long serialVersionUID = -2241769907317830210L;
 
 	private SecureRandom random;
-	private String Yaserver;
+	private KeyPair Yaserver;
 
-	public PublicNumDH(SecureRandom random, String Yaserver) {
+	public PublicNumDH(SecureRandom random, KeyPair Yaserver) {
 		this.random = random;
 		this.Yaserver = Yaserver;
 	}
@@ -22,7 +23,7 @@ public class PublicNumDH implements Serializable {
 		return random;
 	}
 
-	public String getYaserver() {
+	public KeyPair getYaserver() {
 		return Yaserver;
 	}
 }

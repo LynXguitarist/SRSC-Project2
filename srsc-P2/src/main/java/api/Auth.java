@@ -47,7 +47,7 @@ public interface Auth {
 	@GET
 	@Path("/dh/{username}")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	PublicNumDH startDH(@PathParam("username") String username);
+	PublicNumDH startDH(@PathParam("username") String username) throws Exception;
 
 	@POST
 	@Path("/dh")

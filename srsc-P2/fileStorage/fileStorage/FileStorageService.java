@@ -11,6 +11,7 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -43,8 +44,8 @@ public class FileStorageService implements FileStorage {
 	}
 
 	@Override
-	public List<String> ls(String username) {
-		if (getAuth(username).equals("deny"))
+	public List<String> ls(String username, HttpHeaders headers) {
+		if (getAuth(username, headers).equals("deny"))
 			throw new WebApplicationException(Status.FORBIDDEN);
 
 		List<String> children = new LinkedList<>();
@@ -66,8 +67,8 @@ public class FileStorageService implements FileStorage {
 	}
 
 	@Override
-	public List<String> ls(String username, String path) {
-		if (getAuth(username).equals("deny"))
+	public List<String> ls(String username, String path, HttpHeaders headers) {
+		if (getAuth(username, headers).equals("deny"))
 			throw new WebApplicationException(Status.FORBIDDEN);
 
 		List<String> children = new LinkedList<>();
@@ -84,10 +85,10 @@ public class FileStorageService implements FileStorage {
 	}
 
 	@Override
-	public void mkdir(String username, String path) {
+	public void mkdir(String username, String path, HttpHeaders headers) {
 		boolean addedDir = false;
 
-		if (!getAuth(username).equals("allow read write"))
+		if (!getAuth(username, headers).equals("allow read write"))
 			throw new WebApplicationException(Status.FORBIDDEN);
 
 		// verifies if the path has a file
@@ -116,10 +117,10 @@ public class FileStorageService implements FileStorage {
 	}
 
 	@Override
-	public void put(String username, String path, String fileName) {
+	public void put(String username, String path, String fileName, HttpHeaders headers) {
 		boolean addedFile = false;
 
-		if (!getAuth(username).equals("allow read write"))
+		if (!getAuth(username, headers).equals("allow read write"))
 			throw new WebApplicationException(Status.FORBIDDEN);
 
 		for (MyTree tree : trees) {
@@ -136,8 +137,8 @@ public class FileStorageService implements FileStorage {
 	}
 
 	@Override
-	public File get(String username, String path, String fileName) {
-		if (getAuth(username).equals("deny"))
+	public File get(String username, String path, String fileName, HttpHeaders headers) {
+		if (getAuth(username, headers).equals("deny"))
 			throw new WebApplicationException(Status.FORBIDDEN);
 
 		File file = null;
@@ -155,10 +156,10 @@ public class FileStorageService implements FileStorage {
 	}
 
 	@Override
-	public void cp(String username, FilesToCopy fileToCopy) {
+	public void cp(String username, FilesToCopy fileToCopy, HttpHeaders headers) {
 		boolean fileCopied = false;
 
-		if (!getAuth(username).equals("allow read write"))
+		if (!getAuth(username, headers).equals("allow read write"))
 			throw new WebApplicationException(Status.FORBIDDEN);
 
 		String path = fileToCopy.getPath();
@@ -166,7 +167,7 @@ public class FileStorageService implements FileStorage {
 		String file = fileToCopy.getFile();
 		String file2 = fileToCopy.getFile2();
 		// if the path or file or path2 or file2 doesn't exist
-		if (get(username, path2, file2) == null || get(username, path, file) == null)
+		if (get(username, path2, file2, headers) == null || get(username, path, file, headers) == null)
 			return;
 
 		for (MyTree tree : trees) {
@@ -186,10 +187,10 @@ public class FileStorageService implements FileStorage {
 	}
 
 	@Override
-	public void rm(String username, String path, String fileName) {
+	public void rm(String username, String path, String fileName, HttpHeaders headers) {
 		boolean wasRemoved = false;
 
-		if (!getAuth(username).equals("allow read write"))
+		if (!getAuth(username, headers).equals("allow read write"))
 			throw new WebApplicationException(Status.FORBIDDEN);
 
 		for (MyTree tree : trees) {
@@ -209,8 +210,8 @@ public class FileStorageService implements FileStorage {
 	// OPTIONALS
 
 	@Override
-	public void rmdir(String username, String path) {
-		if (!getAuth(username).equals("allow read write"))
+	public void rmdir(String username, String path, HttpHeaders headers) {
+		if (!getAuth(username, headers).equals("allow read write"))
 			throw new WebApplicationException(Status.FORBIDDEN);
 
 		// TODO Auto-generated method stub
@@ -218,8 +219,8 @@ public class FileStorageService implements FileStorage {
 	}
 
 	@Override
-	public List<String> file(String username, String path, String fileName) {
-		if (!getAuth(username).equals("allow read write"))
+	public List<String> file(String username, String path, String fileName, HttpHeaders headers) {
+		if (!getAuth(username, headers).equals("allow read write"))
 			throw new WebApplicationException(Status.FORBIDDEN);
 
 		// TODO Auto-generated method stub
@@ -228,17 +229,19 @@ public class FileStorageService implements FileStorage {
 
 	// ------------------------------------------Client_Calls------------------------------------------//
 
-	private String getAuth(String username) {
+	private String getAuth(String username, HttpHeaders headers) {
 		String permissions = sessionAuth.get(username);
-		if (permissions != null)
-			return permissions;
 
+		String token = headers.getRequestHeader(HttpHeaders.AUTHORIZATION).get(0);
 		// gets permissions for the user
 		WebTarget target = client.target(serverUrl).path(AccessControl.PATH);
-		Response r = target.path(username).request().accept(MediaType.APPLICATION_JSON).get();
+		Response r = target.path(username).request().header(HttpHeaders.AUTHORIZATION, token)
+				.accept(MediaType.APPLICATION_JSON).get();
 
 		if (r.getStatus() == Status.OK.getStatusCode()) {
-			if (!r.hasEntity())
+			if (permissions != null)
+				return permissions;
+			else if (!r.hasEntity())
 				System.out.println("The body is empty!");
 			else {
 				permissions = r.readEntity(new GenericType<String>() {

@@ -2,31 +2,14 @@
 
 - NOTA: SEPARA EM VARIOS SERVER EM VEZ DE SO UM
 
-- DO LOGIN PODE VIR O USER_TOKEN, PARA SE USAR NOS SERVICES
+- YASERVER = CHAVE SERVER,  YCLIENT = CHAVE CLIENTE E KS = CHAVE PARTILHADA
 
-- SERVICES VERIFICAR SE O TOKEN ESTÁ VALIDO
-
-- ENVIAR O TOKEN EM TODOS OS METODOS
-
-- O TOKEN DEVE SER ENVIADO PELO HEADER
-
-
+- O sever recebe o token e o username, verifica se o token é correto e se está valido
 
 TLS : VER LAB 7
 	- trustores e keystores -> VER LAB 6
 	- configuração do file, tls.conf(atender ao que é pedido no enunciado)
 	- auth-type = SERVER -> so vamos fazer para esta parte
- 
-Auth client-> DiffieHelman : VER LAB 5
-	Client > username
-	Client < SecureRandom1 || assinatura de Yaserver // Nº público DH
-	Client >
-	{H (PWD || SecureRandom1+1 } Ks || SecureRandom2 || Assinatura de Ycliente
-	Client <
-	{AssinaturaAServer (A||Ktoken1024||TTL||other-credential-att))|| SecureRandom2+1}Ks
-	ou, por ex., com separação dos componentes:
-	{ A, Ktoken1024, TTL, || SecureRandom2+1 }Ks || AssinaturaAServer (A || Ktoken1024 || TTL
-	|| other-credential-att)
 
 
 Labs:

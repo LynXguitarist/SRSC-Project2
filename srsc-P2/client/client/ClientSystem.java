@@ -3,14 +3,20 @@ package client;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.security.Key;
+import java.security.KeyPair;
+import java.security.MessageDigest;
 import java.security.SecureRandom;
+import java.security.Signature;
 import java.util.List;
 
+import javax.crypto.Cipher;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -21,10 +27,12 @@ import api.AccessControl;
 import api.Auth;
 import api.FileStorage;
 import utils.AServer;
+import utils.DHClient;
 import utils.FilesToCopy;
 import utils.Password;
 import utils.PublicNumDH;
 import utils.ResponsePNDH;
+import utils.Utils;
 
 //Calls the services
 public class ClientSystem {
@@ -34,7 +42,7 @@ public class ClientSystem {
 	private static Client client;
 	private static String token;
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 
 		ClientConfig config = new ClientConfig();
 		client = ClientBuilder.newClient(config);
@@ -80,7 +88,7 @@ public class ClientSystem {
 		}
 	}
 
-	private static void operationLogin(String controls) {
+	private static void operationLogin(String controls) throws Exception {
 		String username = controls.split(" ")[0];
 		String password = controls.split(" ")[1];
 
@@ -108,10 +116,10 @@ public class ClientSystem {
 		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
 		Response r = null;
 		if (path != "")
-			r = target.path(username).path(path).request().header("Authorization", token)
+			r = target.path(username).path(path).request().header(HttpHeaders.AUTHORIZATION, token)
 					.accept(MediaType.APPLICATION_JSON).get();
 		else
-			r = target.path(username).request().header("Authorization", token).accept(MediaType.APPLICATION_JSON).get();
+			r = target.path(username).request().header(HttpHeaders.AUTHORIZATION, token).accept(MediaType.APPLICATION_JSON).get();
 
 		if (r.getStatus() == Status.OK.getStatusCode()) {
 			if (!r.hasEntity())
@@ -133,7 +141,7 @@ public class ClientSystem {
 
 		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
 
-		Response r = target.path(username).request().header("Authorization", token).accept(MediaType.APPLICATION_JSON)
+		Response r = target.path(username).request().header(HttpHeaders.AUTHORIZATION, token).accept(MediaType.APPLICATION_JSON)
 				.post(Entity.entity(path, MediaType.APPLICATION_JSON));
 
 		if (r.getStatus() == Status.OK.getStatusCode())
@@ -151,7 +159,7 @@ public class ClientSystem {
 
 		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
 
-		Response r = target.path(username).path(path).request().header("Authorization", token)
+		Response r = target.path(username).path(path).request().header(HttpHeaders.AUTHORIZATION, token)
 				.accept(MediaType.APPLICATION_JSON).post(Entity.entity(file, MediaType.APPLICATION_JSON));
 
 		if (r.getStatus() == Status.OK.getStatusCode())
@@ -169,7 +177,7 @@ public class ClientSystem {
 
 		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
 
-		Response r = target.path(username).path(path).path(file).request().header("Authorization", token)
+		Response r = target.path(username).path(path).path(file).request().header(HttpHeaders.AUTHORIZATION, token)
 				.accept(MediaType.APPLICATION_JSON).get();
 
 		if (r.getStatus() == Status.OK.getStatusCode()) {
@@ -192,7 +200,7 @@ public class ClientSystem {
 
 		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
 
-		Response r = target.path(username).request().header("Authorization", token).accept(MediaType.APPLICATION_JSON)
+		Response r = target.path(username).request().header(HttpHeaders.AUTHORIZATION, token).accept(MediaType.APPLICATION_JSON)
 				.post(Entity.entity(filesToCopy, MediaType.APPLICATION_JSON));
 
 		if (r.getStatus() == Status.OK.getStatusCode())
@@ -209,7 +217,7 @@ public class ClientSystem {
 
 		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
 
-		Response r = target.path(username).path(path).path(file).request().header("Authorization", token)
+		Response r = target.path(username).path(path).path(file).request().header(HttpHeaders.AUTHORIZATION, token)
 				.accept(MediaType.APPLICATION_JSON).delete();
 
 		if (r.getStatus() == Status.OK.getStatusCode())
@@ -224,7 +232,7 @@ public class ClientSystem {
 
 		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
 
-		Response r = target.path(username).path(path).request().header("Authorization", token)
+		Response r = target.path(username).path(path).request().header(HttpHeaders.AUTHORIZATION, token)
 				.accept(MediaType.APPLICATION_JSON).delete();
 
 		if (r.getStatus() == Status.OK.getStatusCode())
@@ -241,7 +249,7 @@ public class ClientSystem {
 
 		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
 
-		Response r = target.path("file").path(username).path(path).path(file).request().header("Authorization", token)
+		Response r = target.path("file").path(username).path(path).path(file).request().header(HttpHeaders.AUTHORIZATION, token)
 				.accept(MediaType.APPLICATION_JSON).get();
 
 		if (r.getStatus() == Status.OK.getStatusCode()) {
@@ -256,7 +264,7 @@ public class ClientSystem {
 
 	// -----------------------------------DH------------------------------------------//
 
-	private static AServer DHCall(String username, String password) {
+	private static AServer DHCall(String username, String password) throws Exception {
 		PublicNumDH pDH = null;
 		// First part of the aggrement
 		// send username
@@ -273,15 +281,22 @@ public class ClientSystem {
 			}
 		}
 
-		// Receives PublicKey
-		// sends response
+		// starts aggrement
+		DHClient dhC = new DHClient();
+		KeyPair yClient = dhC.init();
 
-		Password pass = new Password(password, pDH.getRandom().nextInt());
-		// encrypt password
-		byte[] encPassword = null;
+		// Receives PublicKey -> pDH.getYaserver()
+		byte[] key = dhC.finish(pDH.getYaserver());
+		Key Ks = (Key) Utils.convertFromBytes(key);
+
+		// Prepares Response -> PWD || random + 1
+		Password PWD = new Password(password, pDH.getRandom().nextInt());
+
+		// encrypt password -> {H(PWD || random +1)}Ks
+		byte[] encPassword = encPassword(PWD, Ks, yClient.getPrivate());
+
 		SecureRandom random2 = new SecureRandom();
-		String yClient = "";
-
+		// send response to the server
 		ResponsePNDH response = new ResponsePNDH(encPassword, random2, yClient);
 
 		WebTarget target = client.target(SERVER_URL).path(Auth.PATH);
@@ -291,7 +306,21 @@ public class ClientSystem {
 				.post(Entity.entity(response, MediaType.APPLICATION_OCTET_STREAM), AServer.class);
 
 		return aServer;
+	}
 
+	private static byte[] encPassword(Password PWD, Key Ks, Key privateKey) throws Exception {
+		byte[] PWDBytes = Utils.convertToBytes(PWD);
+		// Hash it
+		MessageDigest sh = MessageDigest.getInstance("SHA-512");
+		byte[] hashedPWD = sh.digest(PWDBytes);
+		
+		// cipher it
+		Cipher cipher = Cipher.getInstance("AES/ECB/PKCS7Padding", "BC");
+
+		cipher.init(Cipher.WRAP_MODE, Ks);
+
+		byte[] encPassword = cipher.doFinal(hashedPWD);
+		return encPassword;
 	}
 
 }

@@ -9,6 +9,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import utils.File;
@@ -29,7 +31,7 @@ public interface FileStorage {
 	@GET
 	@Path("/{username}")
 	@Produces(MediaType.APPLICATION_JSON)
-	List<String> ls(@PathParam("username") String username);
+	List<String> ls(@PathParam("username") String username, @Context HttpHeaders headers);
 
 	/**
 	 * shows files or dirs of the user in the path
@@ -41,7 +43,7 @@ public interface FileStorage {
 	@GET
 	@Path("/{username}/{path}")
 	@Produces(MediaType.APPLICATION_JSON)
-	List<String> ls(@PathParam("username") String username, @PathParam("path") String path);
+	List<String> ls(@PathParam("username") String username, @PathParam("path") String path, @Context HttpHeaders headers);
 
 	/**
 	 * creates a dir in the path
@@ -52,7 +54,7 @@ public interface FileStorage {
 	@POST
 	@Path("/{username}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	void mkdir(@PathParam("username") String username, String path);
+	void mkdir(@PathParam("username") String username, String path, @Context HttpHeaders headers);
 
 	/**
 	 * Puts a file in the path
@@ -64,7 +66,7 @@ public interface FileStorage {
 	@POST
 	@Path("/{username}/{path}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	void put(@PathParam("username") String username, @PathParam("path") String path, String fileName);
+	void put(@PathParam("username") String username, @PathParam("path") String path, String fileName, @Context HttpHeaders headers);
 
 	/**
 	 * Returns the file in the path
@@ -77,7 +79,8 @@ public interface FileStorage {
 	@GET
 	@Path("/{username}/{path}/{fileName}")
 	@Produces(MediaType.APPLICATION_JSON)
-	File get(@PathParam("username") String username, @PathParam("path") String path, @PathParam("fileName") String fileName);
+	File get(@PathParam("username") String username, @PathParam("path") String path, @PathParam("fileName") String fileName, 
+			@Context HttpHeaders headers);
 
 	/**
 	 * copies file in path to file2 in path2
@@ -88,7 +91,7 @@ public interface FileStorage {
 	@POST
 	@Path("/cp/{username}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	void cp(@PathParam("username") String username, FilesToCopy filesToCopy);
+	void cp(@PathParam("username") String username, FilesToCopy filesToCopy, @Context HttpHeaders headers);
 
 	/**
 	 * Deletes the file from path
@@ -99,7 +102,8 @@ public interface FileStorage {
 	 */
 	@DELETE
 	@Path("/{username}/{path}/{fileName}")
-	void rm(@PathParam("username") String username, @PathParam("path") String path, @PathParam("fileName") String fileName);
+	void rm(@PathParam("username") String username, @PathParam("path") String path, @PathParam("fileName") String fileName, 
+			@Context HttpHeaders headers);
 
 	/**
 	 * Deletes the dir from path. If there are no more files/dirs, removes the path
@@ -110,7 +114,7 @@ public interface FileStorage {
 	 */
 	@DELETE
 	@Path("/{username}/{path}")
-	void rmdir(@PathParam("username") String username, @PathParam("path") String path);
+	void rmdir(@PathParam("username") String username, @PathParam("path") String path, @Context HttpHeaders headers);
 
 	/**
 	 * Returns a list of attributes from the file. If it is a dir, returns its name,
@@ -125,6 +129,6 @@ public interface FileStorage {
 	@Path("/file/{username}/{path}/{fileName}")
 	@Produces(MediaType.APPLICATION_JSON)
 	List<String> file(@PathParam("username") String username, @PathParam("path") String path,
-			@PathParam("fileName") String fileName);
+			@PathParam("fileName") String fileName, @Context HttpHeaders headers);
 
 }
