@@ -4,7 +4,7 @@
 
 - YASERVER = CHAVE SERVER,  YCLIENT = CHAVE CLIENTE E KS = CHAVE PARTILHADA
 
-- O sever recebe o token e o username, verifica se o token é correto e se está valido
+- NO "OUTRO LADO DO DH", ALGUNS SITIOS TEM DE SE FAZER BACKTRACK-> DECIFRAR
 
 TLS : VER LAB 7
 	- trustores e keystores -> VER LAB 6
