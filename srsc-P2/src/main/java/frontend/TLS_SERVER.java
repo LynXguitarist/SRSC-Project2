@@ -55,7 +55,7 @@ public class TLS_SERVER {
 		factory = ctx.getSocketFactory();
 
 		SSLServerSocketFactory ssf = ctx.getServerSocketFactory();
-		SSLServerSocket s = (SSLServerSocket) ssf.createServerSocket(8080);
+		SSLServerSocket s = (SSLServerSocket) ssf.createServerSocket(4000);
 
 		// s.setEnabledProtocols(confprotocols);
 		s.setEnabledCipherSuites(confciphersuites);

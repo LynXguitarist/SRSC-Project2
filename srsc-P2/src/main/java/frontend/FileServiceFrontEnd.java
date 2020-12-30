@@ -55,7 +55,7 @@ public class FileServiceFrontEnd {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		Log.info(String.format("%s REST Server ready @ %s\n", serverURI));
+		Log.info(String.format("REST Server ready @ %s\n", serverURI));
 	}
 
 }
