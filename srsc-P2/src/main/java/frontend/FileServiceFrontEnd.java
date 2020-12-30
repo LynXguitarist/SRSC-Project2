@@ -1,5 +1,6 @@
 package frontend;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
@@ -8,6 +9,11 @@ import java.util.logging.Logger;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 import org.glassfish.jersey.jdkhttp.JdkHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -56,6 +62,13 @@ public class FileServiceFrontEnd {
 			System.exit(1);
 		}
 		Log.info(String.format("REST Server ready @ %s\n", serverURI));
+	}
+	
+	@GET
+	@Path("/test")
+	@Produces(MediaType.APPLICATION_JSON)
+	public boolean isActive() {
+		return true;
 	}
 
 }

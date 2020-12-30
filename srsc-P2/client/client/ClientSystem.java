@@ -42,9 +42,9 @@ public class ClientSystem {
 
 	public static void main(String[] args) throws Exception {
 
-		//ClientConfig config = new ClientConfig();
-		//client = ClientBuilder.newClient(config);
-		
+		// ClientConfig config = new ClientConfig();
+		// client = ClientBuilder.newClient(config);
+
 		client = ClientBuilder.newBuilder().sslContext(TLS_CLIENT.getSSLContext()).build();
 		token = ""; // to prevent NullPointer
 
@@ -88,6 +88,9 @@ public class ClientSystem {
 				break;
 			case "file":
 				operationFile(controls);
+				break;
+			case "test":
+				test();
 				break;
 			default:
 				return;
@@ -329,6 +332,19 @@ public class ClientSystem {
 
 		byte[] encPassword = cipher.doFinal(hashedPWD);
 		return encPassword;
+	}
+
+	private static void test() {
+		WebTarget target = client.target(SERVER_URL).path("test");
+
+		Response r = target.request().accept(MediaType.APPLICATION_JSON).get();
+
+		if (r.getStatus() == Status.OK.getStatusCode()) {
+			boolean b = r.readEntity(boolean.class);
+			System.out.println(b);
+		} else {
+			System.out.println(r.getStatus() + " - failed aggreement...");
+		}
 	}
 
 }
