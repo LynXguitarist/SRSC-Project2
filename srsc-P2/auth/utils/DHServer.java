@@ -15,11 +15,12 @@ public class DHServer {
 	}
 
 	public KeyPair init() throws Exception {
-		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", "BC");
+	
+		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
 		keyGen.initialize(512);
 		// set up
 		// Simulation in A side
-		aKeyAgree = KeyAgreement.getInstance("RSA", "BC");
+		aKeyAgree = KeyAgreement.getInstance("RSA");
 		KeyPair aPair = keyGen.generateKeyPair();
 
 		aKeyAgree.init(aPair.getPrivate());
@@ -36,7 +37,7 @@ public class DHServer {
 		aKeyAgree.doPhase(bPair.getPublic(), true);
 
 		// generate the key bytes
-		MessageDigest hash = MessageDigest.getInstance("SHA1", "BC");
+		MessageDigest hash = MessageDigest.getInstance("SHA1");
 
 		// Then A generates the final agreement key
 		byte[] aShared = hash.digest(aKeyAgree.generateSecret());

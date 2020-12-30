@@ -9,6 +9,7 @@ import java.security.SecureRandom;
 import java.util.List;
 
 import javax.crypto.Cipher;
+import javax.net.ssl.HttpsURLConnection;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -35,7 +36,7 @@ import utils.Utils;
 //Calls the services
 public class ClientSystem {
 
-	private static final String SERVER_URL = "https://localhost:8080";
+	private static final String SERVER_URL = "https://localhost:8080/rest/";
 
 	private static Client client;
 	private static String token;
@@ -51,50 +52,44 @@ public class ClientSystem {
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		while (true) {
 			String line = in.readLine();
-			String operation = "";
-			String controls = "";
-			try {
-				operation = line.split(" ")[0];
-				// rest of the line -> after the operation
-				controls = line.substring(operation.length());
-			} catch (StringIndexOutOfBoundsException e) {
-				e.printStackTrace();
-				System.out.println("You need to choose a file/dir!");
-			}
-			switch (operation) {
-			case "Login":
-				operationLogin(controls);
-				break;
-			case "ls":
-				operationLs(controls);
-				break;
-			case "mkdir":
-				operationMkdir(controls);
-				break;
-			case "put":
-				operationPut(controls);
-				break;
-			case "get":
-				operationGet(controls);
-				break;
-			case "cp":
-				operationCp(controls);
-				break;
-			case "rm":
-				operationRm(controls);
-				break;
-			case "rmdir":
-				operationRmdir(controls);
-				break;
-			case "file":
-				operationFile(controls);
-				break;
-			case "test":
-				test();
-				break;
-			default:
-				return;
-			}
+            String operation = line.split(" ")[0];
+            // rest of the line -> after the operation + username
+            String controls = line.substring(operation.length() + 1);
+
+            switch (operation) {
+            case "Login":
+                operationLogin(controls);
+                break;
+            case "ls":
+                operationLs(controls);
+                break;
+            case "mkdir":
+                operationMkdir(controls);
+                break;
+            case "put":
+                operationPut(controls);
+                break;
+            case "get":
+                operationGet(controls);
+                break;
+            case "cp":
+                operationCp(controls);
+                break;
+            case "rm":
+                operationRm(controls);
+                break;
+            case "rmdir":
+                operationRmdir(controls);
+                break;
+            case "file":
+                operationFile(controls);
+                break;
+            case "test":
+                test();
+                break;
+            default:
+                return;
+            }
 		}
 	}
 
@@ -120,31 +115,35 @@ public class ClientSystem {
 	}
 
 	private static void operationLs(String controls) {
-		String username = controls.split(" ")[0];
-		String path = controls.split(" ")[1];
+        String[] split = controls.split(" ");
+        String username = split[0];
+        String path = "";
+        if (split.length == 2) {
+            path = split[1];
+        }
 
-		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
-		Response r = null;
-		if (path != "")
-			r = target.path(username).path(path).request().header(HttpHeaders.AUTHORIZATION, token)
-					.accept(MediaType.APPLICATION_JSON).get();
-		else
-			r = target.path(username).request().header(HttpHeaders.AUTHORIZATION, token)
-					.accept(MediaType.APPLICATION_JSON).get();
+        WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
+        Response r = null;
+        if (path != "")
+            r = target.path(username).path(path).request().header(HttpHeaders.AUTHORIZATION, token)
+                    .accept(MediaType.APPLICATION_JSON).get();
+        else
+            r = target.path(username).request().header(HttpHeaders.AUTHORIZATION, token)
+                    .accept(MediaType.APPLICATION_JSON).get();
 
-		if (r.getStatus() == Status.OK.getStatusCode()) {
-			if (!r.hasEntity())
-				System.out.println("The path is empty!");
-			else {
-				List<String> listOfFiles = r.readEntity(new GenericType<List<String>>() {
-				});
-				for (String file : listOfFiles) {
-					System.out.println(file);
-				}
-			}
-		} else
-			System.out.println(r.getStatus() + " - error while listing dirs and files!");
-	}
+        if (r.getStatus() == Status.OK.getStatusCode()) {
+            if (!r.hasEntity())
+                System.out.println("The path is empty!");
+            else {
+                List<String> listOfFiles = r.readEntity(new GenericType<List<String>>() {
+                });
+                for (String file : listOfFiles) {
+                    System.out.println(file);
+                }
+            }
+        } else
+            System.out.println(r.getStatus() + " - error while listing dirs and files!");
+    }
 
 	private static void operationMkdir(String controls) {
 		String username = controls.split(" ")[0];
@@ -336,7 +335,7 @@ public class ClientSystem {
 
 	private static void test() {
 		WebTarget target = client.target(SERVER_URL).path("test");
-
+		
 		Response r = target.request().accept(MediaType.APPLICATION_JSON).get();
 
 		if (r.getStatus() == Status.OK.getStatusCode()) {
