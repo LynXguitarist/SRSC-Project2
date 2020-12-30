@@ -19,6 +19,7 @@ import utils.KToken;
 import utils.PublicNumDH;
 import utils.ResponsePNDH;
 import utils.UserInfo;
+import utils.Utils;
 
 public class AuthService implements Auth {
 
@@ -63,7 +64,7 @@ public class AuthService implements Auth {
 	// ---------------------------------DH-------------------------------------//
 
 	@Override
-	public PublicNumDH startDH(String username) throws Exception {
+	public byte[] startDH(String username) throws Exception {
 		if (!hasUser(username))
 			throw new WebApplicationException("User " + username + " doesn't exist", Status.NOT_FOUND);
 		// checks users permission --TODO
@@ -75,7 +76,7 @@ public class AuthService implements Auth {
 
 		PublicNumDH pub = new PublicNumDH(random, Yaserver);
 
-		return pub;
+		return Utils.convertToBytes(pub);
 	}
 
 	@Override

@@ -9,6 +9,7 @@ import java.security.SecureRandom;
 import java.util.List;
 
 import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
 import javax.net.ssl.HttpsURLConnection;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -284,7 +285,9 @@ public class ClientSystem {
 			Response r = target.path("dh").path(username).request().accept(MediaType.APPLICATION_OCTET_STREAM).get();
 
 			if (r.getStatus() == Status.OK.getStatusCode()) {
-				pDH = r.readEntity(PublicNumDH.class);
+				byte[] byte_pDH = r.readEntity(new GenericType<byte[]>() {
+				});
+				pDH = (PublicNumDH) Utils.convertFromBytes(byte_pDH);
 			} else {
 				System.out.println(r.getStatus() + " - failed aggreement...");
 				return null;
@@ -297,7 +300,7 @@ public class ClientSystem {
 
 		// Receives PublicKey -> pDH.getYaserver()
 		byte[] key = dhC.finish(pDH.getYaserver());
-		Key Ks = (Key) Utils.convertFromBytes(key);
+		SecretKey Ks = (SecretKey) Utils.convertFromBytes(key);
 
 		// Prepares Response -> PWD || random + 1
 		Password PWD = new Password(password, pDH.getRandom().nextInt());
@@ -312,8 +315,8 @@ public class ClientSystem {
 		WebTarget target = client.target(SERVER_URL).path(Auth.PATH);
 
 		// get the token, ttl, A and credentials
-		AServer aServer = target.path("dh").request().accept(MediaType.APPLICATION_OCTET_STREAM)
-				.post(Entity.entity(response, MediaType.APPLICATION_OCTET_STREAM), AServer.class);
+		AServer aServer = target.path("dh").request().accept(MediaType.APPLICATION_JSON)
+				.post(Entity.entity(response, MediaType.APPLICATION_JSON), AServer.class);
 
 		return aServer;
 	}

@@ -16,11 +16,11 @@ public class DHServer {
 
 	public KeyPair init() throws Exception {
 	
-		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
 		keyGen.initialize(512);
 		// set up
 		// Simulation in A side
-		aKeyAgree = KeyAgreement.getInstance("RSA");
+		aKeyAgree = KeyAgreement.getInstance("DH");
 		KeyPair aPair = keyGen.generateKeyPair();
 
 		aKeyAgree.init(aPair.getPrivate());

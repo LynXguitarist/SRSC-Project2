@@ -47,11 +47,11 @@ public interface Auth {
 	@GET
 	@Path("/dh/{username}")
 	@Produces(MediaType.APPLICATION_OCTET_STREAM)
-	PublicNumDH startDH(@PathParam("username") String username) throws Exception;
+	byte[] startDH(@PathParam("username") String username) throws Exception;
 
 	@POST
 	@Path("/dh")
-	@Consumes(MediaType.APPLICATION_OCTET_STREAM)
-	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	AServer lastAggreement(ResponsePNDH response);
 }

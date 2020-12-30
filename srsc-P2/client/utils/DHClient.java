@@ -16,12 +16,12 @@ public class DHClient {
 	}
 
 	public KeyPair init() throws Exception {
-		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA", "BC");
+		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
 		// KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
 		keyGen.initialize(512);
 
 		// Simulation in B side
-		bKeyAgree = KeyAgreement.getInstance("RSA", "BC");
+		bKeyAgree = KeyAgreement.getInstance("DH");
 		KeyPair bPair = keyGen.generateKeyPair();
 
 		bKeyAgree.init(bPair.getPrivate());
@@ -37,11 +37,12 @@ public class DHClient {
 		bKeyAgree.doPhase(aPair.getPublic(), true);
 
 		// generate the key bytes
-		MessageDigest hash = MessageDigest.getInstance("SHA1", "BC");
+		MessageDigest hash = MessageDigest.getInstance("SHA1");
 
 		// Then B generates the final agreement key
-		byte[] bShared = hash.digest(bKeyAgree.generateSecret());
+		//byte[] bShared = hash.digest(bKeyAgree.generateSecret());
 
-		return bShared;
+		
+		return bKeyAgree.generateSecret();
 	}
 }
