@@ -19,6 +19,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.glassfish.jersey.client.ClientConfig;
+
 import api.AccessControl;
 import api.Auth;
 import api.FileStorage;
@@ -40,8 +42,8 @@ public class ClientSystem {
 
 	public static void main(String[] args) throws Exception {
 
-		// ClientConfig config = new ClientConfig();
-		// client = ClientBuilder.newClient(config);
+		//ClientConfig config = new ClientConfig();
+		//client = ClientBuilder.newClient(config);
 		
 		client = ClientBuilder.newBuilder().sslContext(TLS_CLIENT.getSSLContext()).build();
 		token = ""; // to prevent NullPointer

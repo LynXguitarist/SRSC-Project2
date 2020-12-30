@@ -13,9 +13,9 @@ import javax.net.ssl.SSLSocketFactory;
 
 public class TLS_CLIENT {
 
-	private static final String TLS_FILE = "tls-client.conf";
+	private static final String TLS_FILE = "/client/tls-client.conf";
 	//private static final String TRUST_FILE = "trustedstore";
-	private static final String KEY_FILE = "client.jks";
+	private static final String KEY_FILE = "/client/trust-keystore-client/client.jks";
 	
 	private static Properties prop;
 	
@@ -28,12 +28,12 @@ public class TLS_CLIENT {
 		SSLSocketFactory factory = null;
 
 		prop = new Properties();
-		FileReader file = new FileReader(TLS_FILE);
+		FileReader file = new FileReader(System.getProperty("user.dir") + TLS_FILE);
 		prop.load(file);
 
 		String[] confciphersuites = prop.getProperty("CIPHERSUITES").split(",");
 
-		char[] passphrase = "client".toCharArray();
+		char[] passphrase = "srscclient".toCharArray();
 
 		String tls = "";
 		if (prop.getProperty("TLS-PROT-ENF").equals("TLS-1.1"))
@@ -46,7 +46,7 @@ public class TLS_CLIENT {
 		KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
 		KeyStore ks = KeyStore.getInstance("JKS");
 
-		ks.load(new FileInputStream(KEY_FILE), passphrase);
+		ks.load(new FileInputStream(System.getProperty("user.dir") + KEY_FILE), passphrase);
 
 		kmf.init(ks, passphrase);
 		ctx.init(kmf.getKeyManagers(), null, null);

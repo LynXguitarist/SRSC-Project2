@@ -17,3 +17,6 @@ Labs:
 	- Lab 7 -> TLS-CODE_JavaJSSE e AnotherTLS-EXAMPLE -> TLS programaticamente(Ricardo)
 	- 1-URLs-JavaJSSESockets e 5-TLS-CODE-JavaJSSE-> Talvez para Connections SSL/TLS(Ricardo/Fred)
 	- Diffie-Hellman -> Para fazer o DiffieHellman(Fred)
+
+pass do serverstore: serverstore
+pass do clientstore: clienttrust

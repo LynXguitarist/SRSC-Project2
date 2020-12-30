@@ -2,6 +2,7 @@ package frontend;
 
 import java.io.FileInputStream;
 import java.io.FileReader;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.util.Properties;
 
@@ -13,9 +14,9 @@ import javax.net.ssl.SSLSocketFactory;
 
 public class TLS_SERVER {
 
-	private static final String TLS_FILE = "tls.conf";
+	private static final String TLS_FILE = "/src/main/java/tls.conf";
 	//private static final String TRUST_FILE = "trustedserverstore";
-	private static final String KEY_FILE = "server.jks";
+	private static final String KEY_FILE = "/src/main/java/trust-keystore-server/server.jks";
 
 	private static Properties prop;
 
@@ -27,12 +28,13 @@ public class TLS_SERVER {
 		SSLSocketFactory factory = null;
 
 		prop = new Properties();
-		FileReader file = new FileReader(TLS_FILE);
+		System.out.println(System.getProperty("user.dir") + TLS_FILE);
+		FileReader file = new FileReader(System.getProperty("user.dir") + TLS_FILE);
 		prop.load(file);
 
 		String[] confciphersuites = prop.getProperty("CIPHERSUITES").split(",");
 
-		char[] passphrase = "client".toCharArray();
+		char[] passphrase = "srscserver".toCharArray();
 
 		String tls = "";
 		if (prop.getProperty("TLS-PROT-ENF").equals("TLS-1.1"))
@@ -45,7 +47,7 @@ public class TLS_SERVER {
 		KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
 		KeyStore ks = KeyStore.getInstance("JKS");
 
-		ks.load(new FileInputStream(KEY_FILE), passphrase);
+		ks.load(new FileInputStream(System.getProperty("user.dir") + KEY_FILE), passphrase);
 
 		kmf.init(ks, passphrase);
 		ctx.init(kmf.getKeyManagers(), null, null);
