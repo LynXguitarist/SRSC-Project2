@@ -6,12 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-
-import org.glassfish.jersey.client.ClientConfig;
 
 import api.AccessControl;
 import utils.AServer;
@@ -27,16 +23,9 @@ public class AccessControlService implements AccessControl {
 	private Map<String, UserToken> tokens;
 
 	private Properties prop;
-	private static Client client;
-	private String serverUrl;
 
 	public AccessControlService(String serverUrl) {
 		this.tokens = new HashMap<>();
-
-		this.serverUrl = serverUrl;
-		ClientConfig config = new ClientConfig();
-		client = ClientBuilder.newClient(config);
-
 		init();
 	}
 

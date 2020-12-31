@@ -11,7 +11,6 @@ import java.util.List;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
-import javax.net.ssl.HttpsURLConnection;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -45,53 +44,51 @@ public class ClientSystem {
 
 	public static void main(String[] args) throws Exception {
 
-		// ClientConfig config = new ClientConfig();
-		// client = ClientBuilder.newClient(config);
+		ClientConfig config = new ClientConfig();
+		client = ClientBuilder.newClient(config);
 
-		client = ClientBuilder.newBuilder().sslContext(TLS_CLIENT.getSSLContext()).build();
-		token = ""; // to prevent NullPointer
+		// client =
+		// ClientBuilder.newBuilder().sslContext(TLS_CLIENT.getSSLContext()).build();
+		// token = ""; // to prevent NullPointer
 
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		while (true) {
 			String line = in.readLine();
-            String operation = line.split(" ")[0];
-            // rest of the line -> after the operation + username
-            String controls = line.substring(operation.length() + 1);
+			String operation = line.split(" ")[0];
+			// rest of the line -> after the operation + username
+			String controls = line.substring(operation.length() + 1);
 
-            switch (operation) {
-            case "Login":
-                operationLogin(controls);
-                break;
-            case "ls":
-                operationLs(controls);
-                break;
-            case "mkdir":
-                operationMkdir(controls);
-                break;
-            case "put":
-                operationPut(controls);
-                break;
-            case "get":
-                operationGet(controls);
-                break;
-            case "cp":
-                operationCp(controls);
-                break;
-            case "rm":
-                operationRm(controls);
-                break;
-            case "rmdir":
-                operationRmdir(controls);
-                break;
-            case "file":
-                operationFile(controls);
-                break;
-            case "test":
-                test();
-                break;
-            default:
-                return;
-            }
+			switch (operation) {
+			case "Login":
+				operationLogin(controls);
+				break;
+			case "ls":
+				operationLs(controls);
+				break;
+			case "mkdir":
+				operationMkdir(controls);
+				break;
+			case "put":
+				operationPut(controls);
+				break;
+			case "get":
+				operationGet(controls);
+				break;
+			case "cp":
+				operationCp(controls);
+				break;
+			case "rm":
+				operationRm(controls);
+				break;
+			case "rmdir":
+				operationRmdir(controls);
+				break;
+			case "file":
+				operationFile(controls);
+				break;
+			default:
+				return;
+			}
 		}
 	}
 
@@ -111,43 +108,42 @@ public class ClientSystem {
 
 			if (r.getStatus() == Status.OK.getStatusCode()) {
 				token = r.getHeaderString("Authorization");
-				System.out.println("User logged in and token: " + token);
 				operationCreateUserFolder(username);
-			}else
+			} else
 				System.out.println(r.getStatus() + " - user doesn't have access!");
 		}
 	}
 
 	private static void operationLs(String controls) {
-        String[] split = controls.split(" ");
-        String username = split[0];
-        String path = "";
-        if (split.length == 2) {
-            path = split[1];
-        }
+		String[] split = controls.split(" ");
+		String username = split[0];
+		String path = "";
+		if (split.length == 2) {
+			path = split[1];
+		}
 
-        WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
-        Response r = null;
-        if (path != "")
-            r = target.path(username).path(path).request().header(HttpHeaders.AUTHORIZATION, token)
-                    .accept(MediaType.APPLICATION_JSON).get();
-        else
-            r = target.path(username).request().header(HttpHeaders.AUTHORIZATION, token)
-                    .accept(MediaType.APPLICATION_JSON).get();
+		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
+		Response r = null;
+		if (path != "")
+			r = target.path(username).path(path).request().header(HttpHeaders.AUTHORIZATION, token)
+					.accept(MediaType.APPLICATION_JSON).get();
+		else
+			r = target.path(username).request().header(HttpHeaders.AUTHORIZATION, token)
+					.accept(MediaType.APPLICATION_JSON).get();
 
-        if (r.getStatus() == Status.OK.getStatusCode()) {
-            if (!r.hasEntity())
-                System.out.println("The path is empty!");
-            else {
-                List<String> listOfFiles = r.readEntity(new GenericType<List<String>>() {
-                });
-                for (String file : listOfFiles) {
-                    System.out.println(file);
-                }
-            }
-        } else
-            System.out.println(r.getStatus() + " - error while listing dirs and files!");
-    }
+		if (r.getStatus() == Status.OK.getStatusCode()) {
+			if (!r.hasEntity())
+				System.out.println("The path is empty!");
+			else {
+				List<String> listOfFiles = r.readEntity(new GenericType<List<String>>() {
+				});
+				for (String file : listOfFiles) {
+					System.out.println(file);
+				}
+			}
+		} else
+			System.out.println(r.getStatus() + " - error while listing dirs and files!");
+	}
 
 	private static void operationMkdir(String controls) {
 		String username = controls.split(" ")[0];
@@ -277,18 +273,17 @@ public class ClientSystem {
 	}
 
 	private static void operationCreateUserFolder(String username) {
-        WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
+		WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
 
-        Response r = target.path("createUserDir").path(username).request().accept(MediaType.APPLICATION_JSON)
-                .post(Entity.entity(username, MediaType.APPLICATION_JSON));
+		Response r = target.path("createUserDir").path(username).request().accept(MediaType.APPLICATION_JSON)
+				.post(Entity.entity(username, MediaType.APPLICATION_JSON));
 
-        if (r.getStatus() == Status.OK.getStatusCode())
-            System.out.println("Path " + username + " created successfully!");
-        else
-            System.out.println(r.getStatus() + " - error creating path " + username);
-    }
-	
-	
+		if (r.getStatus() == Status.OK.getStatusCode())
+			System.out.println("Path " + username + " created successfully!");
+		else
+			System.out.println(r.getStatus() + " - error creating path " + username);
+	}
+
 	// -----------------------------------DH------------------------------------------//
 
 	private static AServer DHCall(String username, String password) throws Exception {
@@ -331,8 +326,9 @@ public class ClientSystem {
 		WebTarget target = client.target(SERVER_URL).path(Auth.PATH);
 
 		// get the token, ttl, A and credentials
-		byte[] aServerbytes = target.path("dh").request().accept(MediaType.APPLICATION_OCTET_STREAM)
-				.post(Entity.entity(Utils.convertToBytes(response), MediaType.APPLICATION_OCTET_STREAM), new GenericType<byte[]>() {
+		byte[] aServerbytes = target.path("dh").request().accept(MediaType.APPLICATION_OCTET_STREAM).post(
+				Entity.entity(Utils.convertToBytes(response), MediaType.APPLICATION_OCTET_STREAM),
+				new GenericType<byte[]>() {
 				});
 		AServer aServer = (AServer) Utils.convertFromBytes(aServerbytes);
 		return aServer;
@@ -345,25 +341,12 @@ public class ClientSystem {
 		byte[] hashedPWD = sh.digest(PWDBytes);
 
 		// cipher it
-		//Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+		// Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
 		Cipher cipher = Cipher.getInstance("Blowfish");
 		cipher.init(Cipher.ENCRYPT_MODE, Ks);
 
 		byte[] encPassword = cipher.doFinal(hashedPWD);
 		return encPassword;
-	}
-
-	private static void test() {
-		WebTarget target = client.target(SERVER_URL).path("test");
-		
-		Response r = target.request().accept(MediaType.APPLICATION_JSON).get();
-
-		if (r.getStatus() == Status.OK.getStatusCode()) {
-			boolean b = r.readEntity(boolean.class);
-			System.out.println(b);
-		} else {
-			System.out.println(r.getStatus() + " - failed aggreement...");
-		}
 	}
 
 }

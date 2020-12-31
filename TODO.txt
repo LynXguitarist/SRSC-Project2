@@ -1,13 +1,7 @@
 - Client precisa de ser tolerante a falhas, try catch(cuidado com erros 500, por exemplo os paths ir a vazio, tem de haver confirmação para isso)
 
-- NOTA: SEPARA EM VARIOS SERVER EM VEZ DE SO UM
 
 - YASERVER = CHAVE SERVER,  YCLIENT = CHAVE CLIENTE E KS = CHAVE PARTILHADA
-
-- NO "OUTRO LADO DO DH", ALGUNS SITIOS TEM DE SE FAZER BACKTRACK-> DECIFRAR
-- ESTOU A FAZER O LOGIN SEM USAR O DH, MUDAR ISSO
-(PASSWORD -> VERIFICAR O QUE VEM DA RESPOSTA DO CLIENTE ENCRIPTADO)
-(O MESMO PARA O TOKEN)
 
 TLS : VER LAB 7
 	- trustores e keystores -> VER LAB 6

@@ -25,8 +25,6 @@ import utils.FilesToCopy;
 
 public class FileStorageService implements FileStorage {
 
-	// quando registado no sistema, cria homeRoot para o username
-
 	private static Client client;
 	private String serverUrl;
 
@@ -65,10 +63,6 @@ public class FileStorageService implements FileStorage {
 				break;
 			}
 		}
-		if (children.isEmpty()) {
-			
-		}
-		//	throw new WebApplicationException(Status.NOT_FOUND);
 
 		return children;
 	}
@@ -85,8 +79,6 @@ public class FileStorageService implements FileStorage {
 				break;
 			}
 		}
-		if (children.isEmpty())
-			throw new WebApplicationException(Status.NOT_FOUND);
 
 		return children;
 	}
@@ -128,7 +120,6 @@ public class FileStorageService implements FileStorage {
 		boolean addedFile = false;
 
 		if (!getAuth(username, headers).trim().equals("allow read write".trim())) {
-			System.out.println(getAuth(username, headers).trim().equals("allow read write".trim()));
 			throw new WebApplicationException(Status.FORBIDDEN);
 		}
 		for (MyTree tree : trees) {
@@ -152,7 +143,6 @@ public class FileStorageService implements FileStorage {
 		File file = null;
 		for (MyTree tree : trees) {
 			File f = tree.getFileByName(fileName);
-			//System.out.println(username +"/"+ path +" funçao: " + f.getPath());
 			if (f.getPath().equals(username + "/" + path + "/" + fileName)) {
 				file = f;
 				break;
@@ -259,7 +249,6 @@ public class FileStorageService implements FileStorage {
 		}
 		// saves user's permissions
 		sessionAuth.put(username, permissions);
-		System.out.println(permissions);
 		return sessionAuth.get(username);
 	}
 
