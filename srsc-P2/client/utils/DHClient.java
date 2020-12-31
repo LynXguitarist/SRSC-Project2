@@ -3,25 +3,28 @@ package utils;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.MessageDigest;
-import java.security.Signature;
+import java.security.Provider;
+import java.security.Security;
 
 import javax.crypto.KeyAgreement;
+
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class DHClient {
 
 	private KeyAgreement bKeyAgree;
 
 	public DHClient() {
-		// nothing here
+		Security.addProvider(new BouncyCastleProvider());
 	}
 
 	public KeyPair init() throws Exception {
-		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
+		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH", "BC");
 		// KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
 		keyGen.initialize(512);
 
 		// Simulation in B side
-		bKeyAgree = KeyAgreement.getInstance("DH");
+		bKeyAgree = KeyAgreement.getInstance("DH", "BC");
 		KeyPair bPair = keyGen.generateKeyPair();
 
 		bKeyAgree.init(bPair.getPrivate());
@@ -37,12 +40,12 @@ public class DHClient {
 		bKeyAgree.doPhase(aPair.getPublic(), true);
 
 		// generate the key bytes
-		MessageDigest hash = MessageDigest.getInstance("SHA1");
+		MessageDigest hash = MessageDigest.getInstance("SHA1","BC");
 
 		// Then B generates the final agreement key
-		//byte[] bShared = hash.digest(bKeyAgree.generateSecret());
+		byte[] bShared = hash.digest(bKeyAgree.generateSecret());
 
 		
-		return bKeyAgree.generateSecret();
+		return bShared;
 	}
 }

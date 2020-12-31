@@ -16,6 +16,7 @@ import org.glassfish.jersey.client.ClientConfig;
 import api.AccessControl;
 import utils.AServer;
 import utils.UserToken;
+import utils.Utils;
 
 public class AccessControlService implements AccessControl {
 
@@ -52,7 +53,8 @@ public class AccessControlService implements AccessControl {
 	}
 
 	@Override
-	public Response login(String username, AServer aServer) {
+	public Response login(String username, byte[] aServerbytes) throws ClassNotFoundException, IOException {
+		AServer aServer = (AServer) Utils.convertFromBytes(aServerbytes);
 		String token = aServer.getkToken().getkToken1024();
 		long ttl = aServer.getkToken().getTtl();
 
@@ -87,7 +89,7 @@ public class AccessControlService implements AccessControl {
 		String tokenFC = headers.getRequestHeader(HttpHeaders.AUTHORIZATION).get(0);
 
 		// since token isn't valid, permission will be = "deny"
-		if (isTokenValid(username, tokenFC))
+		if (!isTokenValid(username, tokenFC))
 			return "deny";
 
 		String permission = prop.getProperty(username);

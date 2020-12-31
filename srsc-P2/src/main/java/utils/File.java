@@ -6,7 +6,7 @@ public class File {
 
 	private String name;
 	private String path;
-	private String ext;
+	//private String ext;
 	private byte[] binary;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
@@ -15,7 +15,7 @@ public class File {
 		this.name = name;
 		this.path = path;
 		this.binary = binary;
-		this.ext = name.split(".")[1];
+		//this.ext = name.split(".")[1];
 		this.createdAt = LocalDateTime.now();
 		this.updatedAt = LocalDateTime.now();
 	}
@@ -44,13 +44,13 @@ public class File {
 		this.path = path;
 	}
 
-	public String getExt() {
+	/*public String getExt() {
 		return ext;
 	}
 
 	public void setExt(String ext) {
 		this.ext = ext;
-	}
+	}*/
 	
 	public LocalDateTime getCreatedAt() {
 		return createdAt;

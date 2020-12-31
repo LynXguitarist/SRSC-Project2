@@ -51,7 +51,7 @@ public interface Auth {
 
 	@POST
 	@Path("/dh")
-	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_JSON)
-	AServer lastAggreement(ResponsePNDH response);
+	@Consumes(MediaType.APPLICATION_OCTET_STREAM)
+	@Produces(MediaType.APPLICATION_OCTET_STREAM)
+	byte[] lastAggreement(byte[] response) throws IOException, ClassNotFoundException;
 }

@@ -44,6 +44,11 @@ public class FileStorageService implements FileStorage {
 	}
 
 	@Override
+    public void createUserPath(String username) {
+        trees.add(new MyTree(new MyNode(username,username), new MyNode(username, username)));
+    }
+	
+	@Override
 	public List<String> ls(String username, HttpHeaders headers) {
 		if (getAuth(username, headers).equals("deny"))
 			throw new WebApplicationException(Status.FORBIDDEN);
@@ -60,8 +65,10 @@ public class FileStorageService implements FileStorage {
 				break;
 			}
 		}
-		if (children.isEmpty())
-			throw new WebApplicationException(Status.NOT_FOUND);
+		if (children.isEmpty()) {
+			
+		}
+		//	throw new WebApplicationException(Status.NOT_FOUND);
 
 		return children;
 	}
@@ -73,7 +80,7 @@ public class FileStorageService implements FileStorage {
 
 		List<String> children = new LinkedList<>();
 		for (MyTree tree : trees) {
-			if (tree.hasPath(path)) {
+			if (tree.hasPath(username + "/" + path)) {
 				children = tree.getChildrenFromNode(path);
 				break;
 			}
@@ -88,9 +95,9 @@ public class FileStorageService implements FileStorage {
 	public void mkdir(String username, String path, HttpHeaders headers) {
 		boolean addedDir = false;
 
-		if (!getAuth(username, headers).equals("allow read write"))
+		if (!getAuth(username, headers).trim().equals("allow read write".trim()))
 			throw new WebApplicationException(Status.FORBIDDEN);
-
+		 
 		// verifies if the path has a file
 		// if has a file, it is an incorrect path
 		if (path.contains("."))
@@ -120,13 +127,14 @@ public class FileStorageService implements FileStorage {
 	public void put(String username, String path, String fileName, HttpHeaders headers) {
 		boolean addedFile = false;
 
-		if (!getAuth(username, headers).equals("allow read write"))
+		if (!getAuth(username, headers).trim().equals("allow read write".trim())) {
+			System.out.println(getAuth(username, headers).trim().equals("allow read write".trim()));
 			throw new WebApplicationException(Status.FORBIDDEN);
-
+		}
 		for (MyTree tree : trees) {
-			if (tree.hasPath(path)) {
+			if (tree.hasPath(username+"/"+path)) {
 				tree.addElement(username, path + "/" + fileName);
-				tree.addFile(fileName, username + "/" + path, null); // ver como meter os binarios
+				tree.addFile(fileName, username + "/" + path +"/"+ fileName, null); // ver como meter os binarios
 				addedFile = true;
 				break;
 			}
@@ -144,7 +152,8 @@ public class FileStorageService implements FileStorage {
 		File file = null;
 		for (MyTree tree : trees) {
 			File f = tree.getFileByName(fileName);
-			if (f.getPath().equals(username + "/" + path)) {
+			//System.out.println(username +"/"+ path +" funçao: " + f.getPath());
+			if (f.getPath().equals(username + "/" + path + "/" + fileName)) {
 				file = f;
 				break;
 			}
@@ -159,7 +168,7 @@ public class FileStorageService implements FileStorage {
 	public void cp(String username, FilesToCopy fileToCopy, HttpHeaders headers) {
 		boolean fileCopied = false;
 
-		if (!getAuth(username, headers).equals("allow read write"))
+		if (!getAuth(username, headers).trim().equals("allow read write".trim()))
 			throw new WebApplicationException(Status.FORBIDDEN);
 
 		String path = fileToCopy.getPath();
@@ -190,13 +199,13 @@ public class FileStorageService implements FileStorage {
 	public void rm(String username, String path, String fileName, HttpHeaders headers) {
 		boolean wasRemoved = false;
 
-		if (!getAuth(username, headers).equals("allow read write"))
+		if (!getAuth(username, headers).trim().equals("allow read write".trim()))
 			throw new WebApplicationException(Status.FORBIDDEN);
 
 		for (MyTree tree : trees) {
 			for (File f : tree.files) {
-				if (f.getName().equals(fileName) && f.getPath().equals(username + "/" + path)) {
-					tree.removeFile(f, path);
+				if (f.getName().equals(fileName) && f.getPath().equals(username + "/" + path + "/" + fileName)) {
+					tree.removeFile(f, path + "/" + fileName);
 					wasRemoved = true;
 					break;
 				}
@@ -211,7 +220,7 @@ public class FileStorageService implements FileStorage {
 
 	@Override
 	public void rmdir(String username, String path, HttpHeaders headers) {
-		if (!getAuth(username, headers).equals("allow read write"))
+		if (!getAuth(username, headers).trim().equals("allow read write".trim()))
 			throw new WebApplicationException(Status.FORBIDDEN);
 
 		// TODO Auto-generated method stub
@@ -220,7 +229,7 @@ public class FileStorageService implements FileStorage {
 
 	@Override
 	public List<String> file(String username, String path, String fileName, HttpHeaders headers) {
-		if (!getAuth(username, headers).equals("allow read write"))
+		if (!getAuth(username, headers).trim().equals("allow read write".trim()))
 			throw new WebApplicationException(Status.FORBIDDEN);
 
 		// TODO Auto-generated method stub
@@ -250,6 +259,7 @@ public class FileStorageService implements FileStorage {
 		}
 		// saves user's permissions
 		sessionAuth.put(username, permissions);
+		System.out.println(permissions);
 		return sessionAuth.get(username);
 	}
 

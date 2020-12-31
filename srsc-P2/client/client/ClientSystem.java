@@ -10,6 +10,7 @@ import java.util.List;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import javax.net.ssl.HttpsURLConnection;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -105,12 +106,14 @@ public class ClientSystem {
 			// calls login in accessControl
 			WebTarget target = client.target(SERVER_URL).path(AccessControl.PATH);
 
-			Response r = target.path(username).request().accept(MediaType.APPLICATION_JSON)
-					.post(Entity.entity(aServer, MediaType.APPLICATION_JSON));
+			Response r = target.path(username).request().accept(MediaType.APPLICATION_OCTET_STREAM)
+					.post(Entity.entity(Utils.convertToBytes(aServer), MediaType.APPLICATION_OCTET_STREAM));
 
-			if (r.getStatus() == Status.OK.getStatusCode())
+			if (r.getStatus() == Status.OK.getStatusCode()) {
 				token = r.getHeaderString("Authorization");
-			else
+				System.out.println("User logged in and token: " + token);
+				operationCreateUserFolder(username);
+			}else
 				System.out.println(r.getStatus() + " - user doesn't have access!");
 		}
 	}
@@ -273,6 +276,19 @@ public class ClientSystem {
 			System.out.println(r.getStatus() + " - error while listing file!");
 	}
 
+	private static void operationCreateUserFolder(String username) {
+        WebTarget target = client.target(SERVER_URL).path(FileStorage.PATH);
+
+        Response r = target.path("createUserDir").path(username).request().accept(MediaType.APPLICATION_JSON)
+                .post(Entity.entity(username, MediaType.APPLICATION_JSON));
+
+        if (r.getStatus() == Status.OK.getStatusCode())
+            System.out.println("Path " + username + " created successfully!");
+        else
+            System.out.println(r.getStatus() + " - error creating path " + username);
+    }
+	
+	
 	// -----------------------------------DH------------------------------------------//
 
 	private static AServer DHCall(String username, String password) throws Exception {
@@ -300,7 +316,7 @@ public class ClientSystem {
 
 		// Receives PublicKey -> pDH.getYaserver()
 		byte[] key = dhC.finish(pDH.getYaserver());
-		SecretKey Ks = (SecretKey) Utils.convertFromBytes(key);
+		SecretKey Ks = new SecretKeySpec(key, 0, key.length, "AES");
 
 		// Prepares Response -> PWD || random + 1
 		Password PWD = new Password(password, pDH.getRandom().nextInt());
@@ -315,9 +331,10 @@ public class ClientSystem {
 		WebTarget target = client.target(SERVER_URL).path(Auth.PATH);
 
 		// get the token, ttl, A and credentials
-		AServer aServer = target.path("dh").request().accept(MediaType.APPLICATION_JSON)
-				.post(Entity.entity(response, MediaType.APPLICATION_JSON), AServer.class);
-
+		byte[] aServerbytes = target.path("dh").request().accept(MediaType.APPLICATION_OCTET_STREAM)
+				.post(Entity.entity(Utils.convertToBytes(response), MediaType.APPLICATION_OCTET_STREAM), new GenericType<byte[]>() {
+				});
+		AServer aServer = (AServer) Utils.convertFromBytes(aServerbytes);
 		return aServer;
 	}
 
@@ -328,9 +345,9 @@ public class ClientSystem {
 		byte[] hashedPWD = sh.digest(PWDBytes);
 
 		// cipher it
-		Cipher cipher = Cipher.getInstance("AES/ECB/PKCS7Padding", "BC");
-
-		cipher.init(Cipher.WRAP_MODE, Ks);
+		//Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+		Cipher cipher = Cipher.getInstance("Blowfish");
+		cipher.init(Cipher.ENCRYPT_MODE, Ks);
 
 		byte[] encPassword = cipher.doFinal(hashedPWD);
 		return encPassword;

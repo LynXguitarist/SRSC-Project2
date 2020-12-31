@@ -80,8 +80,9 @@ public class AuthService implements Auth {
 	}
 
 	@Override
-	public AServer lastAggreement(ResponsePNDH response) {
+	public byte[] lastAggreement(byte[] responsebyte) throws IOException, ClassNotFoundException {
 		// A -> the one to be trusted
+		ResponsePNDH response = (ResponsePNDH) Utils.convertFromBytes(responsebyte);
 		String A = serverUrl; // ou ir buscar ao certificado
 		String kToken1024 = generateToken();
 		long ttl = System.currentTimeMillis() + TTL;
@@ -91,7 +92,7 @@ public class AuthService implements Auth {
 
 		AServer aServer = new AServer(kToken, random2);
 
-		return aServer;
+		return Utils.convertToBytes(aServer);
 	}
 
 	// -------------------------------Private_Methods-------------------------------------//

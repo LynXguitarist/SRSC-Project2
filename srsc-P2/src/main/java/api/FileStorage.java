@@ -21,6 +21,11 @@ public interface FileStorage {
 
 	String PATH = "/storage";
 
+	@POST
+	@Path("/createUserDir/{username}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	void createUserPath(@PathParam("username") String username);
+
 	/**
 	 * shows files or dirs of the user in his home root
 	 * 
@@ -43,7 +48,8 @@ public interface FileStorage {
 	@GET
 	@Path("/{username}/{path}")
 	@Produces(MediaType.APPLICATION_JSON)
-	List<String> ls(@PathParam("username") String username, @PathParam("path") String path, @Context HttpHeaders headers);
+	List<String> ls(@PathParam("username") String username, @PathParam("path") String path,
+			@Context HttpHeaders headers);
 
 	/**
 	 * creates a dir in the path
@@ -66,7 +72,8 @@ public interface FileStorage {
 	@POST
 	@Path("/{username}/{path}")
 	@Consumes(MediaType.APPLICATION_JSON)
-	void put(@PathParam("username") String username, @PathParam("path") String path, String fileName, @Context HttpHeaders headers);
+	void put(@PathParam("username") String username, @PathParam("path") String path, String fileName,
+			@Context HttpHeaders headers);
 
 	/**
 	 * Returns the file in the path
@@ -79,8 +86,8 @@ public interface FileStorage {
 	@GET
 	@Path("/{username}/{path}/{fileName}")
 	@Produces(MediaType.APPLICATION_JSON)
-	File get(@PathParam("username") String username, @PathParam("path") String path, @PathParam("fileName") String fileName, 
-			@Context HttpHeaders headers);
+	File get(@PathParam("username") String username, @PathParam("path") String path,
+			@PathParam("fileName") String fileName, @Context HttpHeaders headers);
 
 	/**
 	 * copies file in path to file2 in path2
@@ -102,8 +109,8 @@ public interface FileStorage {
 	 */
 	@DELETE
 	@Path("/{username}/{path}/{fileName}")
-	void rm(@PathParam("username") String username, @PathParam("path") String path, @PathParam("fileName") String fileName, 
-			@Context HttpHeaders headers);
+	void rm(@PathParam("username") String username, @PathParam("path") String path,
+			@PathParam("fileName") String fileName, @Context HttpHeaders headers);
 
 	/**
 	 * Deletes the dir from path. If there are no more files/dirs, removes the path
